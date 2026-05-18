@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interview Prep — Companies</title>
+  <link rel="stylesheet" href="site.css">
+</head>
+<body>
+
+<div class="nav-overlay" id="nav-overlay" onclick="closeNav()"></div>
+
+<!-- ── Sidebar ───────────────────────────────────────────── -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-mark">
+      <div class="mark"></div>
+      <h1>Interview Prep</h1>
+    </div>
+    <span class="sidebar-date" id="sidebar-date"></span>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="index.html">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </a>
+    <a href="questions.html">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Question Bank
+    </a>
+    <a href="companies.html" class="active">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Companies
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="sidebar-action" id="btn-link-file" onclick="linkFile()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+      <span>Link file</span>
+    </button>
+    <button class="sidebar-action" onclick="exportData()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Export backup
+    </button>
+    <label class="sidebar-action">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/><polyline points="17 8 12 3 7 8"/></svg>
+      Import data
+      <input class="sidebar-file-input" type="file" accept=".json" onchange="importData(event)">
+    </label>
+  </div>
+</aside>
+
+<!-- ── Main ──────────────────────────────────────────────── -->
+<main class="main">
+  <header class="mobile-header">
+    <div class="mobile-header-logo">
+      <div class="mark"></div>
+      Interview Prep
+    </div>
+    <button class="hamburger-btn" onclick="openNav()" aria-label="Open navigation">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </header>
+  <header class="page-header">
+    <div>
+      <h2>Companies</h2>
+      <p>Track your applications and interview stages.</p>
+    </div>
+    <button class="btn btn-primary" onclick="openModal()">+ Add Company</button>
+  </header>
+
+  <div class="page-content">
+    <div class="filter-bar">
+      <input  type="text" class="search-input" id="search"
+              placeholder="Search companies or roles…" oninput="renderList()">
+      <select class="filter-select" id="filter-stage" onchange="renderList()">
+        <option value="">All Stages</option>
+        <option>Applied</option>
+        <option>Phone Screen</option>
+        <option>Technical</option>
+        <option>Onsite</option>
+        <option>Offer</option>
+        <option>Rejected</option>
+      </select>
+      <span class="filter-count" id="filter-count"></span>
+    </div>
+
+    <div id="company-list"></div>
+  </div>
+</main>
+
+<!-- ── Add / Edit modal ───────────────────────────────────── -->
+<div class="modal-overlay hidden" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-title">Add Company</h3>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Company Name</label>
+        <input type="text" class="form-input" id="f-name"
+               placeholder="e.g. Shopify">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Role Title</label>
+        <input type="text" class="form-input" id="f-role"
+               placeholder="e.g. Senior Product Manager">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">Date Applied</label>
+          <input type="date" class="form-input" id="f-date">
+        </div>
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">Current Stage</label>
+          <select class="form-select" id="f-stage">
+            <option>Applied</option>
+            <option>Phone Screen</option>
+            <option>Technical</option>
+            <option>Onsite</option>
+            <option>Offer</option>
+            <option>Rejected</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group" style="margin-top:20px">
+        <label class="form-label">Notes</label>
+        <textarea class="form-textarea" id="f-notes" rows="5"
+          placeholder="Recruiter name, next interview date, key contacts, prep reminders…"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary"   onclick="saveCompany()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Notes modal ────────────────────────────────────────── -->
+<div class="modal-overlay hidden" id="notes-modal">
+  <div class="modal" style="max-width:960px;height:75vh;display:flex;flex-direction:column">
+    <div class="modal-header">
+      <h3 id="notes-modal-title">Interview Notes</h3>
+      <button class="modal-close" onclick="closeNotes()">×</button>
+    </div>
+    <div class="notes-tabs-bar" id="notes-tabs"></div>
+    <div class="modal-body" style="flex:1;display:flex;flex-direction:column;overflow:hidden;padding-bottom:0">
+      <div class="rte-wrap">
+        <div class="rte-toolbar">
+          <button type="button" class="rte-btn" onmousedown="event.preventDefault()" onclick="fmt('bold')" title="Bold"><strong>B</strong></button>
+          <button type="button" class="rte-btn" onmousedown="event.preventDefault()" onclick="fmt('italic')" title="Italic" style="font-style:italic">I</button>
+          <button type="button" class="rte-btn" onmousedown="event.preventDefault()" onclick="fmt('underline')" title="Underline" style="text-decoration:underline">U</button>
+          <span class="rte-sep"></span>
+          <select class="rte-size" onchange="fmtSize(this)" title="Font size">
+            <option value="" disabled selected>Size</option>
+            <option value="2">Small</option>
+            <option value="3">Normal</option>
+            <option value="4">Large</option>
+            <option value="6">Heading</option>
+          </select>
+          <span class="rte-sep"></span>
+          <label class="rte-btn" title="Text colour" onmousedown="saveRteRange()">
+            <span class="rte-color-swatch" id="rte-color-swatch"></span>
+            A
+            <input type="color" class="rte-color-input" id="rte-color-input" value="#18181B" oninput="fmtColor(this.value)">
+          </label>
+        </div>
+        <div class="rte-body" id="notes-modal-body" contenteditable="true"
+             data-placeholder="Write your interview notes here…"
+             onmouseup="saveRteRange()" onkeyup="saveRteRange()" onblur="saveRteRange()"
+             oninput="scheduleNotesAutoSave()"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeNotes()">Close</button>
+      <button class="btn btn-primary" onclick="saveNotes()">Save Notes</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Company detail drawer ───────────────────────────────── -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-header">
+    <div class="drawer-header-top">
+      <div>
+        <div class="drawer-company-name" id="d-name"></div>
+        <div class="drawer-role" id="d-role"></div>
+      </div>
+      <button class="drawer-close" onclick="closeDrawer()">×</button>
+    </div>
+    <div class="drawer-meta" id="d-meta"></div>
+  </div>
+  <div class="drawer-body" id="d-body"></div>
+</div>
+
+<!-- ── Toast ──────────────────────────────────────────────── -->
+<div class="toast hidden" id="toast"></div>
+
+<script>
+/* ── Data helpers ── */
+const get = k => JSON.parse(localStorage.getItem(k) || '[]');
+const set = (k, v) => { localStorage.setItem(k, JSON.stringify(v)); if (typeof autoSave === 'function') autoSave(); };
+const uid = () => 'c_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+
+const STAGE_ORDER   = ['Applied','Phone Screen','Technical','Onsite','Offer','Rejected'];
+const ACTIVE_STAGES = new Set(['Phone Screen','Technical','Onsite','Offer']);
+
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s || '';
+  return d.innerHTML;
+}
+
+function stageBadge(s) {
+  return `<span class="stage-badge stage-${esc(s.replace(/ /g,'-'))}">${esc(s)}</span>`;
+}
+
+function fmtDate(d) {
+  if (!d) return '—';
+  return new Date(d + 'T12:00:00').toLocaleDateString('en-CA', { month:'short', day:'numeric', year:'numeric' });
+}
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.remove('hidden');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.add('hidden'), 2600);
+}
+
+/* ── Render ── */
+function renderList() {
+  const companies  = get('ip_companies');
+  const search     = document.getElementById('search').value.toLowerCase();
+  const stageFilter = document.getElementById('filter-stage').value;
+
+  let filtered = companies.filter(c => {
+    const hay = (c.name + ' ' + c.role + ' ' + (c.notes || '')).toLowerCase();
+    return (!search      || hay.includes(search))
+        && (!stageFilter || c.stage === stageFilter);
+  });
+
+  const countEl = document.getElementById('filter-count');
+  countEl.textContent = filtered.length !== companies.length
+    ? `${filtered.length} of ${companies.length}`
+    : `${companies.length} compan${companies.length !== 1 ? 'ies' : 'y'}`;
+
+  const el = document.getElementById('company-list');
+
+  if (filtered.length === 0) {
+    el.innerHTML = `<div class="empty-state">
+      <span class="empty-icon">○</span>
+      <p>${companies.length === 0
+        ? 'No companies yet. Click "Add Company" to get started.'
+        : 'No companies match your filters.'}</p>
+    </div>`;
+    return;
+  }
+
+  /* sort by stage order, then alphabetically within stage */
+  filtered.sort((a, b) => {
+    const diff = STAGE_ORDER.indexOf(a.stage) - STAGE_ORDER.indexOf(b.stage);
+    return diff !== 0 ? diff : a.name.localeCompare(b.name);
+  });
+
+  const interviewing = filtered.filter(c => ACTIVE_STAGES.has(c.stage));
+  const rest         = filtered.filter(c => !ACTIVE_STAGES.has(c.stage));
+
+  let html = '';
+
+  if (interviewing.length > 0) {
+    html += `<div class="section-label" style="margin-bottom:18px">Actively Interviewing</div>
+             <div class="companies-grid" style="margin-bottom:44px">${interviewing.map(c => companyCard(c)).join('')}</div>`;
+  }
+
+  if (rest.length > 0) {
+    html += `${interviewing.length > 0 ? '<div class="section-label" style="margin-bottom:18px">All Applications</div>' : ''}
+             <div class="companies-grid">${rest.map(c => companyCard(c)).join('')}</div>`;
+  }
+
+  el.innerHTML = html;
+}
+
+function pipelineBar(stage) {
+  const idx = STAGE_ORDER.indexOf(stage);
+  const colours = [
+    'var(--s-applied-fg)', 'var(--s-phone-fg)', 'var(--s-tech-fg)',
+    'var(--s-onsite-fg)',  'var(--s-offer-fg)'
+  ];
+  const steps = STAGE_ORDER.slice(0, 5).map((_, i) => {
+    const active = stage !== 'Rejected' && i <= idx;
+    return `<div class="pipeline-step" style="${active ? 'background:'+colours[i] : ''}"></div>`;
+  }).join('');
+  return `<div class="pipeline-bar">${steps}</div>`;
+}
+
+function companyCard(c) {
+  return `
+    <div class="company-card" id="card-${c.id}">
+      <div class="company-card-top">
+        <div>
+          <button class="company-name-btn" onclick="openDrawer('${c.id}')">${esc(c.name)}</button>
+          <div class="company-role">${esc(c.role)}</div>
+        </div>
+        ${stageBadge(c.stage)}
+      </div>
+      ${pipelineBar(c.stage)}
+      <div class="company-applied">Applied ${fmtDate(c.appliedDate)}</div>
+      <div class="company-footer">
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-secondary btn-sm" onclick="openModal('${c.id}')">Edit</button>
+          ${(c.notes || (c.noteTabs && c.noteTabs.length > 0)) ? `<button class="btn btn-secondary btn-sm" onclick="openNotes('${c.id}')">Notes</button>` : ''}
+          <div class="kebab-wrap">
+            <button class="kebab-btn" onclick="toggleKebab(event,'${c.id}')" aria-label="Edit options"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button>
+            <div class="kebab-menu" id="kebab-${c.id}">
+              <button class="kebab-menu-item danger" onclick="deleteC('${c.id}')">Delete</button>
+            </div>
+          </div>
+        </div>
+        <select class="stage-select" onchange="setStage('${c.id}', this.value)">
+          ${STAGE_ORDER.map(s => `<option value="${s}"${c.stage === s ? ' selected' : ''}>${s}</option>`).join('')}
+        </select>
+      </div>
+    </div>`;
+}
+
+/* ── Modal ── */
+let editId = null;
+
+function openModal(id = null) {
+  editId = id;
+  document.getElementById('modal-title').textContent = id ? 'Edit Company' : 'Add Company';
+
+  if (id) {
+    const c = get('ip_companies').find(x => x.id === id);
+    if (c) {
+      document.getElementById('f-name').value  = c.name;
+      document.getElementById('f-role').value  = c.role;
+      document.getElementById('f-date').value  = c.appliedDate || '';
+      document.getElementById('f-stage').value = c.stage;
+      document.getElementById('f-notes').value = c.notes || '';
+    }
+  } else {
+    document.getElementById('f-name').value  = '';
+    document.getElementById('f-role').value  = '';
+    document.getElementById('f-date').value  = new Date().toISOString().split('T')[0];
+    document.getElementById('f-stage').value = 'Applied';
+    document.getElementById('f-notes').value = '';
+  }
+
+  document.getElementById('modal').classList.remove('hidden');
+  setTimeout(() => document.getElementById('f-name').focus(), 60);
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.add('hidden');
+  editId = null;
+}
+
+function saveCompany() {
+  const name = document.getElementById('f-name').value.trim();
+  if (!name) { alert('Please enter a company name.'); return; }
+
+  const companies = get('ip_companies');
+
+  if (editId) {
+    const idx = companies.findIndex(c => c.id === editId);
+    if (idx > -1) {
+      companies[idx] = {
+        ...companies[idx],
+        name,
+        role:        document.getElementById('f-role').value.trim(),
+        appliedDate: document.getElementById('f-date').value,
+        stage:       document.getElementById('f-stage').value,
+        notes:       document.getElementById('f-notes').value.trim(),
+      };
+    }
+  } else {
+    companies.push({
+      id:          uid(),
+      name,
+      role:        document.getElementById('f-role').value.trim(),
+      appliedDate: document.getElementById('f-date').value,
+      stage:       document.getElementById('f-stage').value,
+      notes:       document.getElementById('f-notes').value.trim(),
+      dateAdded:   new Date().toISOString().split('T')[0],
+    });
+  }
+
+  set('ip_companies', companies);
+  closeModal();
+  renderList();
+  toast(editId ? 'Company updated.' : 'Company saved.');
+}
+
+/* ── Set stage ── */
+function setStage(id, stage) {
+  const companies = get('ip_companies');
+  const c = companies.find(x => x.id === id);
+  if (!c || c.stage === stage) return;
+  c.stage = stage;
+  set('ip_companies', companies);
+  renderList();
+  toast(`${c.name} → ${stage}.`);
+}
+
+function deleteC(id) {
+  const c = get('ip_companies').find(x => x.id === id);
+  if (!c) return;
+  if (!confirm(`Delete ${c.name}? This cannot be undone.`)) return;
+  set('ip_companies', get('ip_companies').filter(x => x.id !== id));
+  renderList();
+  toast('Company deleted.');
+}
+
+/* ── Close modal on backdrop click ── */
+document.getElementById('modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal')) closeModal();
+});
+
+/* ── Company info ── */
+const COMPANY_INFO = {
+  'MaintainX': {
+    about: 'Industrial-grade CMMS (computerized maintenance management system) used by operations and maintenance teams at manufacturing plants, facilities, and field service companies. Series C (~$100M raised), targeting the massive underserved market of frontline workers.',
+    products: ['Work order management', 'Asset & equipment tracking', 'Preventive maintenance scheduling', 'Inventory management', 'Procedure & SOP templates', 'Analytics & reporting'],
+    culture: 'High-growth startup with a strong ownership culture and a mission to modernize frontline work. Team values speed and practical problem-solving. Designers own end-to-end experiences for a complex, industrial user base.'
+  },
+  'Harvey': {
+    about: 'AI legal assistant built specifically for lawyers and law firms — using LLMs trained on legal data for complex legal work. Backed by Sequoia and OpenAI, valued at ~$3B. One of the highest-profile AI companies in legal tech.',
+    products: ['Document review & analysis', 'Contract drafting and negotiation', 'Legal research', 'Due diligence automation', 'Regulatory compliance', 'Deposition preparation'],
+    culture: 'Exceptionally high talent bar with a small, elite team. Fast-moving and research-forward. Deeply focused on trust and accuracy — the stakes of legal work demand near-zero error tolerance. Design has to earn trust through precision and clarity.'
+  },
+  'Venn': {
+    about: 'Urban co-living and neighbourhood community platform. Curates shared living experiences in cities, combining housing with social programming and local community-building. Focused on creating meaningful urban neighbourhoods.',
+    products: ['Co-living residences', 'Community & social app', 'Neighbourhood events programming', 'Member discovery network'],
+    culture: 'Community-first and hospitality-minded. Design shapes the full member experience from leasing to daily life. Values people who care deeply about urban living and social connection.'
+  },
+  'eBay': {
+    about: 'Global peer-to-peer and B2C e-commerce marketplace — one of the world\'s largest, with ~$10B revenue. Focused on pre-loved goods, collectibles, and unique items. A platform at enormous scale with deeply complex buyer/seller dynamics.',
+    products: ['Buyer/seller marketplace', 'eBay Motors', 'Authenticity Guarantee', 'eBay Vault (collectibles storage)', 'Managed Payments', 'Shipping tools & labels'],
+    culture: 'Data-driven at scale, cross-functional PM/design/eng triads. Shifting toward a more product-led culture. Designers work on high-visibility surfaces with massive reach — changes affect hundreds of millions of users.'
+  },
+  'Tim Hortons': {
+    about: 'Iconic Canadian quick-service restaurant (QSR) chain owned by Restaurant Brands International (RBI). ~5,700 locations globally. The digital team is modernizing legacy systems and building new guest-facing experiences at a beloved national scale.',
+    products: ['Mobile ordering & pay app', 'Tims Rewards loyalty program', 'Self-serve kiosks', 'Drive-thru digital menu boards', 'Delivery integrations'],
+    culture: 'Enterprise-scale with a lean digital team — meaning high visibility and impact per designer. Operationally focused; design must account for the realities of QSR environments and accessibility for a very broad Canadian demographic.'
+  },
+  'Priceline': {
+    about: 'Online travel agency (OTA) and part of Booking Holdings — the world\'s largest travel company. Known for its opaque/discount pricing models and deal-hunting ethos. Strong engineering and experimentation infrastructure.',
+    products: ['Hotel, flight & car rental booking', 'Name Your Own Price', 'Express Deals', 'Vacation packages', 'Cruise booking'],
+    culture: 'Heavy A/B testing and experimentation culture. Part of a large corporate parent but operates with meaningful autonomy. Data and conversion rate optimization are central to how design decisions get made.'
+  },
+  'Okta': {
+    about: 'Enterprise identity and access management (IAM) leader trusted by thousands of companies. Secures employee and customer identities across cloud and on-premise environments. ~$2.2B revenue, publicly traded. Acquired Auth0 in 2021.',
+    products: ['Single Sign-On (SSO)', 'Multi-Factor Authentication (MFA)', 'Lifecycle Management (provisioning/deprovisioning)', 'API Access Management', 'Customer Identity (Auth0)', 'Okta Device Access'],
+    culture: '"Love our customers, love our employees, never stop innovating." Zero-trust security mindset. The Okta + Auth0 integration is still shaping team culture. Designers work on enterprise-grade products where security, compliance, and IT admin workflows are core constraints.'
+  },
+  '7shifts': {
+    about: 'Restaurant-specific workforce management platform helping restaurant operators schedule staff, manage labour costs, and communicate with teams. Built entirely for the hospitality industry — front-of-house and back-of-house.',
+    products: ['Employee scheduling', 'Time clocking & attendance', 'Payroll integrations', 'Team chat & communication', 'Tip pooling', 'Manager logbook', 'Labour compliance reporting'],
+    culture: 'Remote-first (HQ in Saskatoon, SK), hospitality-obsessed with strong engineering and product craft culture. Small company feel (~300 people). Designers are deeply embedded in understanding restaurant operators\' real workflows.'
+  },
+  'Affinity': {
+    about: 'Relationship intelligence CRM designed for investment professionals — VCs, PE firms, investment banks, and M&A advisors. Uses email and calendar data to automatically map and surface relationship signals, replacing manual CRM entry.',
+    products: ['Affinity CRM (deal pipeline)', 'Relationship graph & intelligence engine', 'Lists (structured data views)', 'Analytics & reporting', 'Google/Outlook integration'],
+    culture: 'Product quality-first, design-conscious. Serves a sophisticated B2B audience with high expectations. Remote-friendly with a strong emphasis on craft and data accuracy.'
+  },
+  'Affirm': {
+    about: 'Buy Now Pay Later (BNPL) and consumer lending fintech offering transparent installment loans with no hidden fees or compound interest. Partners with thousands of merchants across retail, travel, and healthcare.',
+    products: ['Affirm Pay (checkout installments)', 'Affirm Card (physical & virtual Visa)', 'Savings account', 'Merchant checkout integrations', 'Affirm consumer app'],
+    culture: '"Honest financial products." Mission-driven around consumer financial health and transparency. Strong design and brand culture with significant scale. Designers work at the intersection of financial trust, consumer behaviour, and merchant conversion.'
+  },
+  'Proof': {
+    about: 'Legal technology company modernizing process serving (legal document delivery) and eFiling for attorneys and law firms. Brings real-time tracking and transparency to a historically opaque and paper-heavy legal workflow.',
+    products: ['Digital process serving platform', 'Court eFiling', 'Legal document management', 'Attorney dashboard & case tracking', 'Nationwide process server network'],
+    culture: 'Startup energy with a legal industry disruption mindset. Small, product-focused team working to drag an antiquated industry into the modern era. High ambiguity means designers have real ownership.'
+  },
+  'Sun Life': {
+    about: 'Canadian multinational insurance and financial services company — one of the largest in Canada. Significant push toward digital health benefits and wealth management products. Serves millions of plan members.',
+    products: ['Life, health & dental insurance', 'Group benefits administration', 'Wealth management (mutual funds, GICs, annuities)', 'Lumino Health (digital health platform)', 'Advisor & plan sponsor portals'],
+    culture: 'Purpose-driven ("helping clients achieve lifetime financial security and live healthier lives"). Large enterprise undergoing digital transformation. Solid work-life balance. Designers work within a structured, compliance-aware environment while pushing for modern UX standards.'
+  },
+  'Hopper': {
+    about: 'Mobile-first travel booking app best known for AI-powered flight price prediction. Has expanded into a full travel super-app with a strong fintech layer — price guarantees, freezes, and travel insurance products.',
+    products: ['Flight & hotel booking', 'Car rentals', 'Price Freeze (lock current fares)', 'Cancel for Any Reason', 'Price Drop Guarantee', 'Carrot Cash rewards'],
+    culture: 'Data science and machine learning at the core. Mobile-first with heavy emphasis on product innovation. Fast-moving despite being Series F. Designers work closely with data science to surface predictions in human-friendly ways.'
+  },
+  'Super.com': {
+    about: 'Travel and lifestyle super-app offering curated hotel deals and cashback rewards. Originally Snaptravel (voice/chat hotel booking), pivoted to a broader membership-based model. Backed by SoftBank.',
+    products: ['Hotel booking (app-first)', 'Super+ membership', 'Cashback & rewards', 'Travel insurance', 'Rental cars'],
+    culture: 'Scrappy and growth-focused with strong engineering culture. Moving fast on expanding the product suite. Designers work in a high-velocity environment where growth and conversion are key metrics alongside experience quality.'
+  },
+  'Ashby': {
+    about: 'Modern all-in-one applicant tracking system (ATS) and recruiting platform. Known for its highly opinionated, exceptionally well-designed product — a favourite among technical recruiting teams at high-growth companies.',
+    products: ['Ashby ATS', 'Recruiting CRM', 'Interview scheduling', 'Analytics & reporting', 'Compensation management', 'Job board integrations'],
+    culture: 'Remote-first with an extremely high hiring bar. Design and product are first-class citizens — Ashby is widely cited as having one of the best-designed B2B SaaS products. Small team, high craft standards, strong async culture.'
+  },
+  'Top Hat': {
+    about: 'EdTech platform helping post-secondary instructors create interactive, engaging coursework. Replaces static PDFs and legacy LMSes with a modern teaching and student engagement experience.',
+    products: ['Interactive digital textbooks', 'Top Hat Questions (in-class polling & quizzes)', 'Courseware authoring', 'Tests & assignments', 'LMS integrations (Canvas, Blackboard, Moodle)'],
+    culture: 'Education-obsessed and mission-driven. Toronto-headquartered with a hybrid model. Mid-stage startup where design has meaningful influence on product direction. Team cares deeply about student outcomes and instructor usability.'
+  },
+  'EvenUp': {
+    about: 'AI-powered platform for personal injury lawyers that automates the creation of demand letters and case valuations. Dramatically raises settlement amounts and saves attorneys hours of work per case.',
+    products: ['AI demand letter generation', 'Case intake summarization', 'Medical record analysis & chronology', 'Negotiation analytics & case valuation'],
+    culture: 'AI-first legal tech startup at Series B. Fast-moving with a strong mission around access to justice and levelling the playing field for injured plaintiffs. Small, elite team — designers work on highly specialized workflows for legal professionals.'
+  },
+  'OpenTable': {
+    about: 'Largest restaurant reservation and dining discovery platform globally, powering reservations for 60,000+ restaurants. Part of Booking Holdings. Dual-sided marketplace serving both diners and restaurants.',
+    products: ['Restaurant reservation platform (consumer)', 'GuestCenter (restaurant-side management)', 'Waitlist & table management', 'Marketing tools for restaurants', 'Dining discovery & reviews app'],
+    culture: 'Hospitality and food-passionate team within a Booking Holdings corporate umbrella. Maintains startup DNA in product teams. Data-driven with strong emphasis on both diner and restaurant success metrics.'
+  },
+  'Fellow': {
+    about: 'Meeting management and team productivity platform for managers and their teams. Centralizes meeting agendas, notes, action items, and 1:1s — built around the belief that better meetings create better organizations.',
+    products: ['Meeting agendas & collaborative notes', '1:1 meeting templates & tracking', 'Action item management', 'Goals & OKRs', 'Feedback tools', 'AI meeting assistant', 'Slack, Google & Outlook integrations'],
+    culture: 'Remote-first and async-first. Thoughtful product culture with strong emphasis on management best practices — lived internally as well. Toronto-based with a global team. Designers shape a product used by teams at companies like Shopify, Uber, and Warner.'
+  },
+  'Float': {
+    about: 'Resource planning and capacity management tool for agencies, studios, and professional services teams. Helps project managers see who is available, prevent team burnout, and plan project timelines accurately.',
+    products: ['Visual project scheduling (timeline view)', 'Team capacity planning', 'Time tracking', 'Project budgets', 'Utilization & workload reporting', 'Integrations (Asana, Jira, Slack, Teamwork)'],
+    culture: 'Fully remote and distributed, design-led company culture. Small team (~60 people) with a high-quality product ethos. Strong async communication practices. One of the most design-conscious tools in the project management space.'
+  },
+  'Koho': {
+    about: 'Canadian challenger bank / neobank targeting everyday Canadians with transparent, fee-friendly banking. Known for early paycheque access, cashback on spending, and accessible credit building.',
+    products: ['Spending account (prepaid Visa)', 'KOHO Premium & Extra membership tiers', 'Savings & high-interest accounts', 'Cover (credit building)', 'Instant pay & early payroll', 'No-fee and cashback options'],
+    culture: 'Mission-driven around financial empowerment for Canadians. Toronto-based fintech startup, fast-paced and design-conscious. Growing team post-Series D. Designers work on products that have direct impact on users\' financial wellbeing.'
+  },
+  'Relay': {
+    about: 'Canadian business banking platform built specifically for small and medium-sized businesses. Offers multi-account, multi-user banking with deep bookkeeping integrations that accountants love.',
+    products: ['Business checking accounts (up to 20)', 'Business savings accounts', 'Expense cards & spend controls', 'Payroll integrations (Gusto, ADP)', 'Accounting integrations (QuickBooks, Xero)', 'Wire & international transfers'],
+    culture: 'SMB-obsessed, remote-friendly Canadian fintech at Series B. Product and design quality are core differentiators in a market historically defined by big-bank mediocrity. Founder-led with a strong customer empathy culture.'
+  },
+  'Stripe': {
+    about: 'Global payments infrastructure powering internet businesses of all sizes — from startups to Fortune 500. Considered the gold standard for developer-first financial tools. Private, valued at ~$50B+, with ambitions far beyond payments.',
+    products: ['Payments API', 'Billing (subscriptions & invoicing)', 'Stripe Connect (platform & marketplace payments)', 'Radar (ML fraud prevention)', 'Atlas (company formation)', 'Terminal (in-person payments)', 'Issuing (card creation)', 'Treasury (financial services infrastructure)'],
+    culture: 'Extremely high bar for craft across engineering, design, and writing. "Move thoughtfully and make things." Documentation and clarity are cultural obsessions. Contrarian thinkers who reject conventional wisdom. One of the most competitive companies to get into — and one of the most formative career experiences in tech.'
+  },
+  'CaptivateIQ': {
+    about: 'Sales commission management platform that replaces error-prone spreadsheets for revenue operations and finance teams. Automates complex, variable commission calculations with full auditability and rep-facing visibility.',
+    products: ['Commission plan design & configuration', 'Automated commission calculation engine', 'Payout management & approvals', 'Rep earnings portal', 'Dispute management', 'Analytics & compensation insights', 'Salesforce & CRM integrations'],
+    culture: 'RevOps-focused with a data-driven culture. Series C startup with strong engineering foundations. Growing design team with high product quality expectations — the challenge is making complex compensation logic feel intuitive for both ops teams and sales reps.'
+  },
+  'eBay (Search)': {
+    about: 'The search and discovery experience at eBay — one of the hardest search problems at scale, with 1.6+ billion live listings. Involves ranking, relevance, personalization, and visual search across an enormously diverse catalogue.',
+    products: ['Search results page (SERP)', 'Filters & faceted navigation', 'Saved searches & alerts', 'Visual / image search', 'Personalized recommendation systems', 'Browse & category discovery pages'],
+    culture: 'Same as eBay broadly, but the search team is heavily data science and ML-forward. Design must balance platform-scale engineering constraints with consumer UX intuitions — and prove design decisions through rigorous experimentation.'
+  },
+  'RBC': {
+    about: 'Royal Bank of Canada — Canada\'s largest bank by market cap (~$200B+), serving 17M+ clients across personal banking, commercial, wealth management, insurance, and capital markets. One of the largest digital transformation programmes in Canada.',
+    products: ['Personal banking (chequing, savings, mortgages)', 'RBC Mobile app', 'MyAdvisor (digital wealth guidance)', 'Avion Rewards', 'RBC Wealth Management & Direct Investing', 'Commercial & corporate banking'],
+    culture: 'Large enterprise with a serious, growing commitment to digital product design. Design team sits within Innovation & Technology. Strong job stability, structured processes, and collaborative cross-functional teams. Good work-life balance. Designers have the opportunity to impact products used by millions of Canadians.'
+  }
+};
+
+/* ── Company links ── */
+const COMPANY_LINKS = {
+  'MaintainX':     { products: 'https://www.getmaintainx.com/use-cases/cmms-software',            culture: 'https://www.getmaintainx.com/careers' },
+  'Harvey':        { products: 'https://www.harvey.ai/products',                                   culture: 'https://www.harvey.ai/company/careers' },
+  'Venn':          { products: 'https://www.venn.city/solution/resident-experience',               culture: 'https://www.venn.city/careers' },
+  'eBay':          { products: 'https://www.ebayinc.com/company/',                                 culture: 'https://careers.ebayinc.com/' },
+  'Tim Hortons':   { products: 'https://www.timhortons.com/timsrewards',                           culture: 'https://careers.timhortons.com/' },
+  'Priceline':     { products: 'https://www.priceline.com/',                                       culture: 'https://careers.priceline.com/' },
+  'Okta':          { products: 'https://www.okta.com/products/',                                   culture: 'https://www.okta.com/company/careers/' },
+  '7shifts':       { products: 'https://www.7shifts.com/restaurant-employee-scheduling-software/', culture: 'https://www.7shifts.com/careers/' },
+  'Affinity':      { products: 'https://www.affinity.co/product/crm',                              culture: 'https://www.affinity.co/company/careers' },
+  'Affirm':        { products: 'https://www.affirm.com/how-it-works',                              culture: 'https://www.affirm.com/careers' },
+  'Proof':         { products: 'https://www.proofserve.com/how-it-works',                          culture: 'https://www.proofserve.com/careers' },
+  'Sun Life':      { products: 'https://www.sunlife.com/en/products-and-services/',                culture: 'https://www.sunlife.com/en/careers/' },
+  'Hopper':        { products: 'https://hts.hopper.com/',                                          culture: 'https://hopper.com/careers' },
+  'Super.com':     { products: 'https://landing.super.com/about',                                  culture: 'https://www.super.com/careers' },
+  'Ashby':         { products: 'https://www.ashbyhq.com/platform/recruiting/ats',                  culture: 'https://www.ashbyhq.com/careers' },
+  'Top Hat':       { products: 'https://tophat.com/features/',                                     culture: 'https://tophat.com/company/work-with-us/' },
+  'EvenUp':        { products: 'https://www.evenuplaw.com/products/demands/',                      culture: 'https://www.evenuplaw.com/careers/' },
+  'OpenTable':     { products: 'https://www.opentable.com/restaurant-solutions/',                  culture: 'https://www.opentable.com/c/careers/' },
+  'Fellow':        { products: 'https://fellow.ai/features',                                       culture: 'https://fellow.ai/careers' },
+  'Float':         { products: 'https://www.float.com/product/capacity-planning',                  culture: 'https://www.float.com/careers' },
+  'Koho':          { products: 'https://www.koho.ca/coming-soon/',                                 culture: 'https://www.koho.ca/careers/' },
+  'Relay':         { products: 'https://relayfi.com/product/',                                     culture: 'https://relayfi.com/careers/' },
+  'Stripe':        { products: 'https://stripe.com/payments',                                      culture: 'https://stripe.com/jobs' },
+  'CaptivateIQ':   { products: 'https://www.captivateiq.com/platform',                             culture: 'https://www.captivateiq.com/careers' },
+  'eBay (Search)': { products: 'https://tech.ebayinc.com/engineering/',                            culture: 'https://careers.ebayinc.com/find-jobs-by-category/engineering/' },
+  'RBC':           { products: 'https://www.rbcroyalbank.com/personal-us.html',                    culture: 'https://jobs.rbc.com/ca/en' },
+};
+
+/* ── Drawer ── */
+function openDrawer(id) {
+  const c = get('ip_companies').find(x => x.id === id);
+  if (!c) return;
+
+  document.getElementById('d-name').textContent = c.name;
+  document.getElementById('d-role').textContent = c.role;
+  document.getElementById('d-meta').innerHTML  =
+    stageBadge(c.stage) +
+    (c.appliedDate ? `<span style="font-family:var(--font-mono);font-size:13px;color:var(--text-tertiary)">Applied ${fmtDate(c.appliedDate)}</span>` : '');
+
+  const info = COMPANY_INFO[c.name];
+  let body = '';
+
+  if (info) {
+    const links = COMPANY_LINKS[c.name] || {};
+    body += `
+      <div class="drawer-section">
+        <div class="drawer-section-title">About</div>
+        <p>${esc(info.about)}</p>
+      </div>
+      <div class="drawer-section">
+        <div class="drawer-section-header">
+          <div class="drawer-section-title">Products & Offerings</div>
+          ${links.products ? `<a href="${links.products}" target="_blank" rel="noopener" class="drawer-section-link">Visit page →</a>` : ''}
+        </div>
+        <ul>${info.products.map(p => `<li>${esc(p)}</li>`).join('')}</ul>
+      </div>
+      <div class="drawer-section">
+        <div class="drawer-section-header">
+          <div class="drawer-section-title">Culture & Values</div>
+          ${links.culture ? `<a href="${links.culture}" target="_blank" rel="noopener" class="drawer-section-link">Visit page →</a>` : ''}
+        </div>
+        <p>${esc(info.culture)}</p>
+      </div>`;
+  } else {
+    body += `<div class="drawer-section"><p style="color:var(--text-tertiary);font-size:15px">No company overview available yet.</p></div>`;
+  }
+
+
+  document.getElementById('d-body').innerHTML = body;
+  document.getElementById('drawer-overlay').classList.add('open');
+  document.getElementById('drawer').classList.add('open');
+}
+
+function closeDrawer() {
+  document.getElementById('drawer-overlay').classList.remove('open');
+  document.getElementById('drawer').classList.remove('open');
+}
+
+/* ── Kebab ── */
+function toggleKebab(e, id) {
+  e.stopPropagation();
+  const menu = document.getElementById('kebab-' + id);
+  const isOpen = menu.classList.contains('open');
+  closeAllKebabs();
+  if (!isOpen) menu.classList.add('open');
+}
+
+function closeAllKebabs() {
+  document.querySelectorAll('.kebab-menu.open').forEach(m => m.classList.remove('open'));
+}
+
+document.addEventListener('click', closeAllKebabs);
+
+/* ── Seed ── */
+function seedIfEmpty() {
+  if (get('ip_companies').length > 0) return;
+  const seed = [
+    { name:'MaintainX',    role:'Staff Designer',            stage:'Applied',       notes:'' },
+    { name:'Harvey',       role:'Senior Product Designer',   stage:'Applied',       notes:'' },
+    { name:'Venn',         role:'Senior Product Designer',   stage:'Applied',       notes:'' },
+    { name:'eBay',         role:'Product Designer III',      stage:'Applied',       notes:'' },
+    { name:'Tim Hortons',  role:'Product Designer II',       stage:'Applied',       notes:'' },
+    { name:'Priceline',    role:'Senior Product Designer',   stage:'Applied',       notes:'' },
+    { name:'Okta',         role:'Senior Product Designer',   stage:'Phone Screen',  notes:`Upcoming HR phone interview.\n\nCOMPANY OVERVIEW\nOkta is the leading independent identity provider. Core mission: enable any organization to use any technology safely. Currently pivoting toward "AI-First" design — identity as the foundation for secure AI integration.\n\nKEY PILLARS\n\nNeutrality: Neutral platform integrating with thousands of apps (AWS, Google, Salesforce, Slack) rather than locking users into a single ecosystem.\n\nThe Three Personas:\n- IT Admins (configuration)\n- Security Admins (monitoring/threat response)\n- End-Users (frictionless access)\n\nComplexity at Scale: They design systems managing millions of identities. They value systems-thinking — how a change in one flow affects the entire security posture of an enterprise.\n\nSTRATEGIC TALKING POINTS\n\nAI as a Design Partner: They specifically want designers who use AI for prototyping and "sophisticated prompts." Mention how you've used Claude or Cursor to accelerate workflow and explore complex logic.\n\nThe 80/20 Rule: Your philosophy of encoding complexity under the hood while keeping the default experience simple aligns perfectly with their Security vs. Usability tension. Focus on making high-stakes security actions feel intuitive.\n\nCross-Functional Influence: The JD emphasizes "leading through influence." Be ready to discuss partnering with PMs and Engineering to ensure design is technically feasible and tied to business metrics.\n\nEnd-to-End Ownership: Highlight owning a product area from discovery through shipping, specifically in B2B environments where workflows are non-linear.` },
+    { name:'7shifts',      role:'Senior Product Designer',   stage:'Rejected',      notes:'Rejected at hiring manager phase.' },
+    { name:'Affinity',     role:'Senior Product Designer',   stage:'Applied',       notes:'' },
+    { name:'Affirm',       role:'Senior Product Designer',   stage:'Applied',       notes:'' },
+    { name:'Proof',        role:'Senior Product Designer',   stage:'Applied',       notes:'' },
+    { name:'Sun Life',     role:'Senior Product Designer',   stage:'Applied',       notes:'' },
+    { name:'Hopper',       role:'Senior Product Designer',   stage:'Applied',       notes:'' },
+    { name:'Super.com',    role:'Senior Product Designer',   stage:'Applied',       notes:'' },
+    { name:'Ashby',        role:'Senior Product Designer',   stage:'Applied',       notes:'' },
+    { name:'Top Hat',      role:'Lead Product Designer',     stage:'Applied',       notes:'' },
+    { name:'EvenUp',       role:'Senior Product Designer',   stage:'Applied',       notes:'' },
+    { name:'OpenTable',    role:'Senior Product Designer',   stage:'Applied',       notes:'' },
+    { name:'Fellow',       role:'Senior Product Designer',   stage:'Applied',       notes:'' },
+    { name:'Float',        role:'Senior Product Designer',   stage:'Rejected',      notes:'Rejected at hiring manager phase.' },
+    { name:'Koho',         role:'Senior Product Designer',   stage:'Applied',       notes:'' },
+    { name:'Relay',        role:'Senior Product Designer',   stage:'Applied',       notes:'' },
+    { name:'Stripe',       role:'Senior Product Designer',   stage:'Applied',       notes:'' },
+    { name:'CaptivateIQ',  role:'Senior Product Designer',   stage:'Applied',       notes:'' },
+    { name:'eBay (Search)',role:'Senior Product Designer',   stage:'Applied',       notes:'' },
+    { name:'RBC',          role:'Senior Product Designer',   stage:'Applied',       notes:'' },
+  ].map(c => ({ ...c, id: uid(), appliedDate: '', dateAdded: new Date().toISOString().split('T')[0] }));
+  set('ip_companies', seed);
+}
+
+/* ── Notes modal ── */
+let notesId = null;
+let _noteTabs = [];
+let _activeTabId = null;
+let _rteRange = null;
+let _notesAutoSaveTimer = null;
+
+/* RTE helpers */
+function saveRteRange() {
+  const sel = window.getSelection();
+  _rteRange = sel.rangeCount > 0 ? sel.getRangeAt(0).cloneRange() : null;
+}
+
+function restoreRteRange() {
+  const el = document.getElementById('notes-modal-body');
+  el.focus();
+  if (!_rteRange) return;
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(_rteRange);
+}
+
+function fmt(cmd) { restoreRteRange(); document.execCommand(cmd, false, null); }
+
+function fmtSize(sel) {
+  restoreRteRange();
+  document.execCommand('fontSize', false, sel.value);
+  sel.value = '';
+}
+
+function fmtColor(color) {
+  restoreRteRange();
+  document.execCommand('foreColor', false, color);
+  document.getElementById('rte-color-swatch').style.background = color;
+}
+
+/* Tab helpers */
+function setRteContent(content) {
+  const el = document.getElementById('notes-modal-body');
+  if (content && /<[a-z][^>]*>/i.test(content)) {
+    el.innerHTML = content;
+  } else {
+    el.innerText = content || '';
+  }
+}
+
+function captureCurrentTab() {
+  const tab = _noteTabs.find(t => t.id === _activeTabId);
+  if (tab) tab.content = document.getElementById('notes-modal-body').innerHTML;
+}
+
+function renderNoteTabs() {
+  document.getElementById('notes-tabs').innerHTML =
+    _noteTabs.map(t => `
+      <button class="notes-tab${t.id === _activeTabId ? ' active' : ''}"
+              onclick="switchNoteTab('${t.id}')"
+              ondblclick="renameNoteTab(event,'${t.id}')">
+        ${esc(t.label)}
+        ${_noteTabs.length > 1
+          ? `<span class="notes-tab-close" onmousedown="event.preventDefault()" onclick="deleteNoteTab(event,'${t.id}')">×</span>`
+          : ''}
+      </button>`).join('') +
+    `<button class="notes-tab-add" onmousedown="event.preventDefault()" onclick="addNoteTab()" title="New tab">+</button>`;
+}
+
+function switchNoteTab(id) {
+  if (id === _activeTabId) return;
+  captureCurrentTab();
+  _activeTabId = id;
+  const tab = _noteTabs.find(t => t.id === id);
+  setRteContent(tab ? tab.content : '');
+  renderNoteTabs();
+  persistNoteTabs();
+  setTimeout(() => document.getElementById('notes-modal-body').focus(), 30);
+}
+
+function addNoteTab() {
+  const label = prompt('Tab name:', `Tab ${_noteTabs.length + 1}`);
+  if (!label || !label.trim()) return;
+  captureCurrentTab();
+  const newId = 'tab_' + Date.now();
+  _noteTabs.push({ id: newId, label: label.trim(), content: '' });
+  _activeTabId = newId;
+  document.getElementById('notes-modal-body').innerHTML = '';
+  renderNoteTabs();
+  persistNoteTabs();
+  setTimeout(() => document.getElementById('notes-modal-body').focus(), 30);
+}
+
+function deleteNoteTab(event, id) {
+  event.stopPropagation();
+  if (_noteTabs.length <= 1) return;
+  const tab = _noteTabs.find(t => t.id === id);
+  if (!confirm(`Delete tab "${tab ? tab.label : ''}"?`)) return;
+  const idx = _noteTabs.findIndex(t => t.id === id);
+  _noteTabs.splice(idx, 1);
+  if (_activeTabId === id) {
+    _activeTabId = _noteTabs[Math.min(idx, _noteTabs.length - 1)].id;
+    const next = _noteTabs.find(t => t.id === _activeTabId);
+    setRteContent(next ? next.content : '');
+  }
+  renderNoteTabs();
+  persistNoteTabs();
+}
+
+function renameNoteTab(event, id) {
+  event.stopPropagation();
+  const tab = _noteTabs.find(t => t.id === id);
+  if (!tab) return;
+  const newLabel = prompt('Rename tab:', tab.label);
+  if (newLabel && newLabel.trim()) {
+    tab.label = newLabel.trim();
+    renderNoteTabs();
+    persistNoteTabs();
+  }
+}
+
+function persistNoteTabs() {
+  if (!notesId) return;
+  clearTimeout(_notesAutoSaveTimer);
+  captureCurrentTab();
+  const companies = get('ip_companies');
+  const c = companies.find(x => x.id === notesId);
+  if (!c) return;
+  c.noteTabs  = JSON.parse(JSON.stringify(_noteTabs));
+  c.activeTab = _activeTabId;
+  set('ip_companies', companies);
+}
+
+function scheduleNotesAutoSave() {
+  clearTimeout(_notesAutoSaveTimer);
+  _notesAutoSaveTimer = setTimeout(persistNoteTabs, 1500);
+}
+
+function openNotes(id) {
+  const c = get('ip_companies').find(x => x.id === id);
+  if (!c) return;
+  notesId  = id;
+  _rteRange = null;
+  document.getElementById('notes-modal-title').textContent = c.name + ' — Interview Notes';
+
+  if (c.noteTabs && c.noteTabs.length > 0) {
+    _noteTabs    = JSON.parse(JSON.stringify(c.noteTabs));
+    _activeTabId = (c.activeTab && _noteTabs.find(t => t.id === c.activeTab))
+      ? c.activeTab : _noteTabs[0].id;
+  } else {
+    const defaultId = 'tab_' + Date.now();
+    _noteTabs    = [{ id: defaultId, label: 'Notes', content: c.notes || '' }];
+    _activeTabId = defaultId;
+  }
+
+  const activeTab = _noteTabs.find(t => t.id === _activeTabId);
+  setRteContent(activeTab ? activeTab.content : '');
+  renderNoteTabs();
+  document.getElementById('notes-modal').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => document.getElementById('notes-modal-body').focus(), 60);
+}
+
+function saveNotes() {
+  closeNotes();
+  toast('Notes saved.');
+}
+
+function closeNotes() {
+  clearTimeout(_notesAutoSaveTimer);
+  persistNoteTabs();
+  document.getElementById('notes-modal').classList.add('hidden');
+  document.body.style.overflow = '';
+  notesId = null;
+  _noteTabs = [];
+  _activeTabId = null;
+  _rteRange = null;
+  renderList();
+}
+
+document.getElementById('notes-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('notes-modal')) closeNotes();
+});
+
+/* ── Patches ── */
+function patchCompanyNotes() {
+  const companies = get('ip_companies');
+  const okta = companies.find(c => c.name === 'Okta');
+  if (!okta || okta.notes.includes('COMPANY OVERVIEW')) return;
+  okta.notes = `Upcoming HR phone interview.\n\nCOMPANY OVERVIEW\nOkta is the leading independent identity provider. Core mission: enable any organization to use any technology safely. Currently pivoting toward "AI-First" design — identity as the foundation for secure AI integration.\n\nKEY PILLARS\n\nNeutrality: Neutral platform integrating with thousands of apps (AWS, Google, Salesforce, Slack) rather than locking users into a single ecosystem.\n\nThe Three Personas:\n- IT Admins (configuration)\n- Security Admins (monitoring/threat response)\n- End-Users (frictionless access)\n\nComplexity at Scale: They design systems managing millions of identities. They value systems-thinking — how a change in one flow affects the entire security posture of an enterprise.\n\nSTRATEGIC TALKING POINTS\n\nAI as a Design Partner: They specifically want designers who use AI for prototyping and "sophisticated prompts." Mention how you've used Claude or Cursor to accelerate workflow and explore complex logic.\n\nThe 80/20 Rule: Your philosophy of encoding complexity under the hood while keeping the default experience simple aligns perfectly with their Security vs. Usability tension. Focus on making high-stakes security actions feel intuitive.\n\nCross-Functional Influence: The JD emphasizes "leading through influence." Be ready to discuss partnering with PMs and Engineering to ensure design is technically feasible and tied to business metrics.\n\nEnd-to-End Ownership: Highlight owning a product area from discovery through shipping, specifically in B2B environments where workflows are non-linear.`;
+  set('ip_companies', companies);
+}
+
+/* ── File System sync ── */
+let _fh = null;
+
+const _idb = (() => {
+  let _db;
+  const open = () => new Promise((res, rej) => {
+    if (_db) return res(_db);
+    const req = indexedDB.open('ip_sync', 1);
+    req.onupgradeneeded = e => e.target.result.createObjectStore('handles');
+    req.onsuccess = e => { _db = e.target.result; res(_db); };
+    req.onerror = () => rej(req.error);
+  });
+  return {
+    get: async k => { const d = await open(); return new Promise((res, rej) => { const t = d.transaction('handles','readonly'); const r = t.objectStore('handles').get(k); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); }); },
+    put: async (k, v) => { const d = await open(); return new Promise((res, rej) => { const t = d.transaction('handles','readwrite'); const r = t.objectStore('handles').put(v, k); r.onsuccess = () => res(); r.onerror = () => rej(r.error); }); },
+  };
+})();
+
+async function autoSave() {
+  if (!_fh) return;
+  try {
+    const data = {
+      ip_companies: JSON.parse(localStorage.getItem('ip_companies') || '[]'),
+      ip_questions: JSON.parse(localStorage.getItem('ip_questions') || '[]'),
+      savedAt: new Date().toISOString(),
+    };
+    const w = await _fh.createWritable();
+    await w.write(JSON.stringify(data, null, 2));
+    await w.close();
+  } catch {
+    _fh = null;
+    setSyncLabel('Link file');
+  }
+}
+
+function setSyncLabel(text) {
+  const el = document.getElementById('btn-link-file');
+  if (el) el.querySelector('span').textContent = text;
+}
+
+async function linkFile() {
+  if (!window.showSaveFilePicker) {
+    alert('Auto-save requires Chrome or Edge. Use "Export backup" to save manually.');
+    return;
+  }
+  try {
+    const fh = await window.showSaveFilePicker({
+      suggestedName: 'interview-prep.json',
+      types: [{ description: 'JSON', accept: { 'application/json': ['.json'] } }],
+    });
+    _fh = fh;
+    await _idb.put('fh', fh);
+    setSyncLabel('✓ Linked');
+    await autoSave();
+    toast('File linked — changes will auto-save.');
+  } catch {}
+}
+
+async function initFileSync() {
+  if (!window.showSaveFilePicker) return;
+  try {
+    const fh = await _idb.get('fh');
+    if (!fh) return;
+    const perm = await fh.queryPermission({ mode: 'readwrite' });
+    if (perm === 'granted') {
+      _fh = fh; setSyncLabel('✓ Linked');
+    } else if (perm === 'prompt') {
+      const granted = await fh.requestPermission({ mode: 'readwrite' });
+      if (granted === 'granted') { _fh = fh; setSyncLabel('✓ Linked'); }
+    }
+  } catch {}
+}
+
+function exportData() {
+  const data = {
+    ip_companies: JSON.parse(localStorage.getItem('ip_companies') || '[]'),
+    ip_questions: JSON.parse(localStorage.getItem('ip_questions') || '[]'),
+    exportedAt: new Date().toISOString().split('T')[0],
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `interview-prep-${data.exportedAt}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function importData(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (!data.ip_companies && !data.ip_questions) throw new Error('Unrecognised file.');
+      if (data.ip_companies) localStorage.setItem('ip_companies', JSON.stringify(data.ip_companies));
+      if (data.ip_questions) localStorage.setItem('ip_questions', JSON.stringify(data.ip_questions));
+      location.reload();
+    } catch {
+      alert('Could not import: invalid or unrecognised file.');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+/* ── Init ── */
+document.getElementById('sidebar-date').textContent =
+  new Date().toLocaleDateString('en-CA', { weekday:'short', month:'short', day:'numeric', year:'numeric' });
+
+seedIfEmpty();
+patchCompanyNotes();
+renderList();
+initFileSync();
+
+function openNav()  { document.getElementById('sidebar').classList.add('open'); document.getElementById('nav-overlay').classList.add('open'); }
+function closeNav() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('nav-overlay').classList.remove('open'); }
+</script>
+</body>
+</html>

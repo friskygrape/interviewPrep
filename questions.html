@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interview Prep — Question Bank</title>
+  <link rel="stylesheet" href="site.css">
+</head>
+<body>
+
+<div class="nav-overlay" id="nav-overlay" onclick="closeNav()"></div>
+
+<!-- ── Sidebar ───────────────────────────────────────────── -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-mark">
+      <div class="mark"></div>
+      <h1>Interview Prep</h1>
+    </div>
+    <span class="sidebar-date" id="sidebar-date"></span>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="index.html">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </a>
+    <a href="questions.html" class="active">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Question Bank
+    </a>
+    <a href="companies.html">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Companies
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="sidebar-action" id="btn-link-file" onclick="linkFile()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+      <span>Link file</span>
+    </button>
+    <button class="sidebar-action" onclick="exportData()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Export backup
+    </button>
+    <label class="sidebar-action">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/><polyline points="17 8 12 3 7 8"/></svg>
+      Import data
+      <input class="sidebar-file-input" type="file" accept=".json" onchange="importData(event)">
+    </label>
+  </div>
+</aside>
+
+<!-- ── Main ──────────────────────────────────────────────── -->
+<main class="main">
+  <header class="mobile-header">
+    <div class="mobile-header-logo">
+      <div class="mark"></div>
+      Interview Prep
+    </div>
+    <button class="hamburger-btn" onclick="openNav()" aria-label="Open navigation">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </header>
+  <header class="page-header">
+    <div>
+      <h2>Question Bank</h2>
+      <p>Practice questions, model responses, and company tags.</p>
+    </div>
+    <button class="btn btn-primary" onclick="openModal()">+ Add Question</button>
+  </header>
+
+  <div class="page-content">
+    <div class="filter-bar">
+      <input  type="text" class="search-input" id="search"
+              placeholder="Search questions…" oninput="renderList()">
+      <select class="filter-select" id="filter-cat" onchange="renderList()">
+        <option value="">All Categories</option>
+        <option>Behavioural</option>
+        <option>Technical</option>
+        <option>Leadership</option>
+        <option>Situational</option>
+        <option>Culture Fit</option>
+      </select>
+      <select class="filter-select" id="filter-co" onchange="renderList()">
+        <option value="">All Companies</option>
+      </select>
+      <span class="filter-count" id="filter-count"></span>
+    </div>
+
+    <div id="question-list"></div>
+  </div>
+</main>
+
+<!-- ── Add / Edit modal ───────────────────────────────────── -->
+<div class="modal-overlay hidden" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-title">Add Question</h3>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Question</label>
+        <textarea class="form-textarea" id="f-text" rows="3"
+          placeholder="e.g. Tell me about a time you disagreed with your manager."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <select class="form-select" id="f-cat">
+          <option>Behavioural</option>
+          <option>Technical</option>
+          <option>Leadership</option>
+          <option>Situational</option>
+          <option>Culture Fit</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Companies That Asked This</label>
+        <div class="tag-input-wrap" id="tag-wrap" onclick="focusTagInput()">
+          <!-- pills injected here -->
+          <input type="text" class="tag-inline-input" id="tag-input"
+            placeholder="Type a company name, then press Enter…"
+            onkeydown="handleTag(event)">
+        </div>
+        <p class="form-hint">Press Enter or comma to add. Backspace removes the last tag.</p>
+        <div class="tag-suggestions" id="tag-suggestions"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Goal</label>
+        <textarea class="form-textarea" id="f-goal" rows="2"
+          placeholder="What the interviewer wants to hear…"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary"   onclick="saveQuestion()">Save Question</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Response modal ────────────────────────────────────── -->
+<div class="modal-overlay hidden" id="response-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Your Response</h3>
+      <button class="modal-close" onclick="closeResponseModal()">×</button>
+    </div>
+    <div class="modal-body" style="padding-bottom:0;overflow:hidden;display:flex;flex-direction:column">
+      <div class="rte-wrap" style="flex:1;min-height:0">
+        <div class="rte-toolbar">
+          <button class="rte-btn" id="rte-bold"      onmousedown="rteCmd(event,'bold')"      title="Bold"><b>B</b></button>
+          <button class="rte-btn" id="rte-italic"    onmousedown="rteCmd(event,'italic')"    title="Italic"><i>I</i></button>
+          <button class="rte-btn" id="rte-underline" onmousedown="rteCmd(event,'underline')" title="Underline"><u>U</u></button>
+          <div class="rte-sep"></div>
+          <select class="rte-size" id="rte-size" onchange="rteSize(this.value)" title="Size">
+            <option value="2">Small</option>
+            <option value="3" selected>Normal</option>
+            <option value="5">Large</option>
+            <option value="6">XL</option>
+          </select>
+          <div class="rte-sep"></div>
+          <button class="rte-btn" onmousedown="rteCmd(event,'justifyLeft')"   title="Align left"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="6" x2="3" y2="6"/><line x1="15" y1="12" x2="3" y2="12"/><line x1="17" y1="18" x2="3" y2="18"/></svg></button>
+          <button class="rte-btn" onmousedown="rteCmd(event,'justifyCenter')" title="Align center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="6" x2="3" y2="6"/><line x1="18" y1="12" x2="6" y2="12"/><line x1="21" y1="18" x2="3" y2="18"/></svg></button>
+          <button class="rte-btn" onmousedown="rteCmd(event,'justifyRight')"  title="Align right"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="12" x2="9" y2="12"/><line x1="21" y1="18" x2="7" y2="18"/></svg></button>
+        </div>
+        <div class="rte-body" id="rf-response" contenteditable="true"
+          data-placeholder="Write your model answer, key bullet points, or a STAR story here…"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeResponseModal()">Cancel</button>
+      <button class="btn btn-primary"   onclick="saveResponse()">Save Response</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Toast ──────────────────────────────────────────────── -->
+<div class="toast hidden" id="toast"></div>
+
+<script>
+/* ── Data helpers ── */
+const get = k  => JSON.parse(localStorage.getItem(k) || '[]');
+const set = (k, v) => { localStorage.setItem(k, JSON.stringify(v)); if (typeof autoSave === 'function') autoSave(); };
+const uid = ()  => 'q_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s || '';
+  return d.innerHTML;
+}
+
+function catBadge(c) {
+  return `<span class="cat-badge cat-${esc(c.replace(/ /g, '-'))}">${esc(c)}</span>`;
+}
+
+function fmtDate(d) {
+  if (!d) return '';
+  return new Date(d + 'T12:00:00').toLocaleDateString('en-CA', { month:'short', day:'numeric', year:'numeric' });
+}
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.remove('hidden');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.add('hidden'), 2600);
+}
+
+/* ── Filters / List ── */
+function allCompanies() {
+  return [...new Set(get('ip_questions').flatMap(q => q.companies || []))].sort();
+}
+
+function syncCompanyFilter() {
+  const sel = document.getElementById('filter-co');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">All Companies</option>';
+  allCompanies().forEach(c => {
+    const o = document.createElement('option');
+    o.value = c; o.textContent = c;
+    if (c === cur) o.selected = true;
+    sel.appendChild(o);
+  });
+}
+
+function renderList() {
+  const questions = get('ip_questions');
+  const search    = document.getElementById('search').value.toLowerCase();
+  const filterCat = document.getElementById('filter-cat').value;
+  const filterCo  = document.getElementById('filter-co').value;
+
+  let filtered = questions.filter(q => {
+    const text = (q.text + ' ' + (q.response || '')).toLowerCase();
+    return (!search    || text.includes(search))
+        && (!filterCat || q.category === filterCat)
+        && (!filterCo  || (q.companies || []).includes(filterCo));
+  });
+
+  const countEl = document.getElementById('filter-count');
+  countEl.textContent = filtered.length !== questions.length
+    ? `${filtered.length} of ${questions.length}`
+    : `${questions.length} question${questions.length !== 1 ? 's' : ''}`;
+
+  const el = document.getElementById('question-list');
+
+  if (filtered.length === 0) {
+    el.innerHTML = `<div class="empty-state">
+      <span class="empty-icon">○</span>
+      <p>${questions.length === 0
+        ? 'No questions yet. Click "Add Question" to get started.'
+        : 'No questions match your filters.'}</p>
+    </div>`;
+    return;
+  }
+
+  const CAT_ORDER = ['Behavioural','Situational','Leadership','Technical','Culture Fit'];
+
+  /* if a category filter is active, skip grouping */
+  if (filterCat) {
+    el.innerHTML = filtered.map(q => questionCard(q)).join('');
+    return;
+  }
+
+  const groups = CAT_ORDER.map(cat => ({
+    cat,
+    items: filtered.filter(q => q.category === cat)
+  })).filter(g => g.items.length > 0);
+
+  el.innerHTML = groups.map(g => `
+    <div class="section-label" style="margin-bottom:18px;${groups.indexOf(g) > 0 ? 'margin-top:40px' : ''}">${g.cat}</div>
+    ${g.items.map(q => questionCard(q)).join('')}
+  `).join('');
+}
+
+function questionCard(q) {
+  const goal = q.goal || extractGoal(q.response);
+  const body = q.goal !== undefined ? (q.response || '') : stripGoal(q.response);
+  return `
+    <div class="card" id="card-${q.id}">
+      <div class="card-header">
+        <div class="card-question">${esc(q.text)}</div>
+        <div class="kebab-wrap">
+          <button class="kebab-btn" onclick="toggleQKebab(event,'${q.id}')" aria-label="Edit options"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button>
+          <div class="kebab-menu" id="q-kebab-${q.id}">
+            <button class="kebab-menu-item" onclick="openModal('${q.id}')">Edit</button>
+            <button class="kebab-menu-item danger" onclick="deleteQ('${q.id}')">Delete</button>
+          </div>
+        </div>
+      </div>
+      <div class="card-meta">
+        ${catBadge(q.category)}
+        ${(q.companies || []).map(c => `<span class="tag-company">${esc(c)}</span>`).join('')}
+      </div>
+      ${goal ? `<div class="card-goal">Goal: ${esc(goal)}</div>` : ''}
+      ${body ? `
+        <div class="response-area">
+          <div class="response-header">
+            <button class="response-toggle" onclick="toggleResp('rb-${q.id}', this)">▶ Show Response</button>
+            <button class="btn btn-secondary btn-sm response-edit hidden" onclick="openResponseModal('${q.id}')">Edit Response</button>
+          </div>
+          <div class="response-body hidden" id="rb-${q.id}">${body}</div>
+        </div>` : `
+        <div class="response-area">
+          <button class="btn btn-secondary btn-sm" onclick="openResponseModal('${q.id}')">Answer Question</button>
+        </div>`}
+    </div>
+  `;
+}
+
+function toggleQKebab(e, id) {
+  e.stopPropagation();
+  const menu = document.getElementById('q-kebab-' + id);
+  const isOpen = menu.classList.contains('open');
+  document.querySelectorAll('.kebab-menu.open').forEach(m => m.classList.remove('open'));
+  if (!isOpen) menu.classList.add('open');
+}
+
+document.addEventListener('click', () => {
+  document.querySelectorAll('.kebab-menu.open').forEach(m => m.classList.remove('open'));
+});
+
+function extractGoal(response) {
+  if (!response) return null;
+  const m = response.match(/Goal:\s*(.+)$/m);
+  return m ? m[1].trim() : null;
+}
+
+function stripGoal(response) {
+  if (!response) return '';
+  return response.replace(/\n*---\nGoal:.+$/m, '').replace(/^Goal:.+$/m, '').trim();
+}
+
+function toggleResp(id, btn) {
+  const el = document.getElementById(id);
+  const nowHidden = el.classList.toggle('hidden');
+  btn.textContent = nowHidden ? '▶ Show Response' : '▼ Hide Response';
+  const editBtn = btn.parentElement.querySelector('.response-edit');
+  if (editBtn) editBtn.classList.toggle('hidden', nowHidden);
+}
+
+/* ── Modal / Tags ── */
+let editId = null;
+let pendingTags = [];
+
+function openModal(id = null) {
+  editId = id;
+  pendingTags = [];
+  document.getElementById('modal-title').textContent = id ? 'Edit Question' : 'Add Question';
+
+  if (id) {
+    const q = get('ip_questions').find(x => x.id === id);
+    if (q) {
+      document.getElementById('f-text').value = q.text;
+      document.getElementById('f-cat').value  = q.category;
+      document.getElementById('f-goal').value = q.goal || '';
+      pendingTags = [...(q.companies || [])];
+    }
+  } else {
+    document.getElementById('f-text').value = '';
+    document.getElementById('f-cat').value  = 'Behavioural';
+    document.getElementById('f-goal').value = '';
+  }
+
+  renderPills();
+  document.getElementById('modal').classList.remove('hidden');
+  setTimeout(() => document.getElementById('f-text').focus(), 60);
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.add('hidden');
+  editId = null; pendingTags = [];
+}
+
+function focusTagInput() { document.getElementById('tag-input').focus(); }
+
+function renderPills() {
+  const wrap  = document.getElementById('tag-wrap');
+  const input = document.getElementById('tag-input');
+  wrap.innerHTML = '';
+  pendingTags.forEach((tag, i) => {
+    const pill = document.createElement('span');
+    pill.className = 'tag-pill';
+    pill.innerHTML = `${esc(tag)}<button class="tag-pill-remove" onclick="removeTag(${i})">×</button>`;
+    wrap.appendChild(pill);
+  });
+  wrap.appendChild(input);
+  input.value = '';
+  renderSuggestions();
+}
+
+function removeTag(i) { pendingTags.splice(i, 1); renderPills(); }
+
+function handleTag(e) {
+  const input = document.getElementById('tag-input');
+  if (e.key === 'Enter' || e.key === ',') {
+    e.preventDefault();
+    const val = input.value.trim().replace(/,$/, '');
+    if (val && !pendingTags.includes(val)) { pendingTags.push(val); renderPills(); }
+    else input.value = '';
+  }
+  if (e.key === 'Backspace' && input.value === '' && pendingTags.length > 0) {
+    pendingTags.pop(); renderPills();
+  }
+}
+
+/* ── Tag suggestions ── */
+let _suggestions = [];
+
+function frequentCompanies() {
+  const questions = get('ip_questions');
+  const counts = {};
+  questions.forEach(q => {
+    (q.companies || []).forEach(c => {
+      counts[c] = (counts[c] || 0) + 1;
+    });
+  });
+  return Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
+}
+
+function renderSuggestions() {
+  const el = document.getElementById('tag-suggestions');
+  if (!el) return;
+
+  const frequent = frequentCompanies().filter(c => !pendingTags.includes(c));
+  const frequentSet = new Set(frequent);
+
+  const extras = get('ip_companies')
+    .map(c => c.name)
+    .filter(n => !pendingTags.includes(n) && !frequentSet.has(n))
+    .sort((a, b) => a.localeCompare(b));
+
+  const candidates = [...frequent, ...extras];
+  _suggestions = candidates.slice(0, Math.max(10, frequent.length));
+  if (_suggestions.length === 0) { el.innerHTML = ''; return; }
+  el.innerHTML = _suggestions.map((c, i) =>
+    `<button type="button" class="tag-suggestion-chip" onclick="addSuggestion(${i})">${esc(c)}</button>`
+  ).join('');
+}
+
+function addSuggestion(i) {
+  const name = _suggestions[i];
+  if (name && !pendingTags.includes(name)) {
+    pendingTags.push(name);
+    renderPills();
+  }
+}
+
+function saveQuestion() {
+  const text = document.getElementById('f-text').value.trim();
+  if (!text) { alert('Please enter a question.'); return; }
+
+  const leftover = document.getElementById('tag-input').value.trim();
+  if (leftover && !pendingTags.includes(leftover)) pendingTags.push(leftover);
+
+  const questions = get('ip_questions');
+
+  if (editId) {
+    const idx = questions.findIndex(q => q.id === editId);
+    if (idx > -1) {
+      questions[idx] = {
+        ...questions[idx],
+        text,
+        category:  document.getElementById('f-cat').value,
+        companies: [...pendingTags],
+        goal:      document.getElementById('f-goal').value.trim(),
+      };
+    }
+  } else {
+    questions.push({
+      id:        uid(),
+      text,
+      category:  document.getElementById('f-cat').value,
+      companies: [...pendingTags],
+      goal:      document.getElementById('f-goal').value.trim(),
+      response:  '',
+      dateAdded: new Date().toISOString().split('T')[0],
+    });
+  }
+
+  set('ip_questions', questions);
+  closeModal();
+  syncCompanyFilter();
+  renderList();
+  toast(editId ? 'Question updated.' : 'Question saved.');
+}
+
+function deleteQ(id) {
+  if (!confirm('Delete this question? This cannot be undone.')) return;
+  set('ip_questions', get('ip_questions').filter(q => q.id !== id));
+  syncCompanyFilter();
+  renderList();
+  toast('Question deleted.');
+}
+
+/* ── Response modal ── */
+let responseEditId = null;
+
+function openResponseModal(id) {
+  responseEditId = id;
+  const q = get('ip_questions').find(x => x.id === id);
+  const editor = document.getElementById('rf-response');
+  editor.innerHTML = (q && q.response) || '';
+  document.getElementById('response-modal').classList.remove('hidden');
+  setTimeout(() => editor.focus(), 60);
+}
+
+function closeResponseModal() {
+  document.getElementById('response-modal').classList.add('hidden');
+  responseEditId = null;
+}
+
+function saveResponse() {
+  if (!responseEditId) return;
+  const questions = get('ip_questions');
+  const idx = questions.findIndex(q => q.id === responseEditId);
+  if (idx > -1) {
+    questions[idx].response = document.getElementById('rf-response').innerHTML;
+    set('ip_questions', questions);
+  }
+  closeResponseModal();
+  syncCompanyFilter();
+  renderList();
+  toast('Response saved.');
+}
+
+/* ── RTE commands ── */
+function rteCmd(e, cmd) {
+  e.preventDefault();
+  document.execCommand(cmd, false, null);
+  document.getElementById('rf-response').focus();
+  updateRteState();
+}
+
+function rteSize(size) {
+  document.getElementById('rf-response').focus();
+  document.execCommand('fontSize', false, size);
+  document.getElementById('rte-size').value = size;
+}
+
+function updateRteState() {
+  ['bold', 'italic', 'underline'].forEach(cmd => {
+    const btn = document.getElementById('rte-' + cmd);
+    if (btn) btn.classList.toggle('active', document.queryCommandState(cmd));
+  });
+}
+
+document.addEventListener('selectionchange', () => {
+  if (document.activeElement === document.getElementById('rf-response')) updateRteState();
+});
+
+/* ── Close modal on backdrop click ── */
+document.getElementById('modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal')) closeModal();
+});
+
+document.getElementById('response-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('response-modal')) closeResponseModal();
+});
+
+/* ── Seed ── */
+function seedQuestionsIfEmpty() {
+  if (get('ip_questions').length > 0) return;
+  const today = new Date().toISOString().split('T')[0];
+  const seed = [
+    {
+      text: 'Can you describe a time when you had to make a design decision that went against a business requirement? How did you handle it?',
+      category: 'Behavioural',
+      companies: [],
+      response: `SITUATION\nOne of my first big projects at TouchBistro was rebuilding the Cloud platform for multi-location customers. The problem was straightforward but painful: if you ran five locations, you had five separate logins. We wanted a single sign-on experience.\n\nTASK\nWhen I presented my proposal to leadership, the CPO and CTO pushed back. They wanted a Venue-First navigation pattern, basically copying Toast. The reasoning was: Toast is the market leader, they've already de-risked this, just follow them.\n\nACTION\nI didn't argue in the room. I asked for a bit of time to actually test it. I worked with a UX researcher and ran side-by-side usability tests with 10 multi-location businesses. We built two prototypes: the Venue-First model, where you pick a location first, and my Task-First proposal, where you pick what you want to do, like Reporting, and then the venue. We measured preference and task completion speed.\n\nRESULT\n75% of participants preferred Task-First. Their reasoning was simple: they think about what they need to do before they think about where. The flow was also 16% faster.\n\nWhen I brought those numbers back, the conversation was different. Leadership had been backing a competitor's pattern on an assumption. Data changed that. It also changed how they worked with the design team. Research started getting more weight in those rooms.\n\n---\nGoal: To see how you negotiate and find a middle ground between UX and ROI.`
+    },
+    {
+      text: 'Tell me about a project where you used data or research to pivot the product direction.',
+      category: 'Behavioural',
+      companies: [],
+      response: `Refer to the multi-location project (TouchBistro).\n\nProjects where testing was conducted:\n- Multi-location (primary story — Task-First vs Venue-First, 75% preference, 16% faster)\n- Reporting\n- Cash Deposits\n- Printers?\n\n---\nGoal: To assess your ability to use evidence rather than just intuition.`
+    },
+    {
+      text: 'How do you ensure your design work aligns with the overall company vision and quarterly goals?',
+      category: 'Situational',
+      companies: [],
+      response: `USERS FIRST\nI don't think of user needs and business goals as separate problems. If Float wants to grow card spend, the way I get there is making receipt capture so easy that employees reach for the Float card instead of their personal one. Fix the friction, the business metric follows.\n\nSIMPLICITY\nWhen Float talks about simplicity, I think about what that actually means for someone trying to close their books at month-end. Not a cleaner UI in the abstract. A Monday morning that takes two hours instead of two days. That's what I'm designing for when I work on something like Accounting Automations.\n\nSTRATEGIC TRADE-OFFS\nWhen a new quarterly goal comes in, I try to get in front of Product and Engineering early to figure out the right scope. What's the smallest version of this that we'd actually feel good shipping? In fintech especially, moving fast is fine, but you can't erode trust. People are handing you their money.\n\nAt TouchBistro I didn't just fix a login, I made a workflow 16% faster. That framing is how I try to approach every project.\n\n---\nGoal: To see if you understand the "big picture" beyond the canvas.`
+    },
+    {
+      text: 'Describe a situation where you had a significant disagreement with a Product Manager or Engineering Lead. How was it resolved?',
+      category: 'Behavioural',
+      companies: [],
+      response: `SITUATION\nAt TouchBistro, we were adding scheduling to Advanced Discounts so merchants could set up things like automatic happy hour pricing. The issue I kept running into was that we already had Promotional Pricing on a completely separate page doing essentially the same job. Two different tools, one user trying to figure out which one to use.\n\nTASK\nI wanted to merge them into a single Discounts and Promotions engine. One place to manage everything.\n\nACTION\nI brought it to my Director and VP of Product. They weren't into it. They saw them as separate features and were worried about breaking existing workflows or slowing the launch down.\n\nI didn't push. I mapped out what happens to the user journey as you keep adding complexity across two separate pages: conflicting rules, merchants filing tickets because they don't know which setting is winning. I wrote up the IA risks and the long-term maintenance cost and left it with them.\n\nRESULT\nA few weeks later they came back and said let's do it. Once they had time to think through the architecture, the logic held. We shipped a cleaner system, engineering had less to maintain, and merchants had one place to go instead of two.\n\n---\nGoal: To evaluate your conflict resolution skills and cross-functional empathy.`
+    },
+    {
+      text: 'Tell me about a time you mentored a junior designer or influenced a peer. What was the outcome?',
+      category: 'Leadership',
+      companies: [],
+      response: `Goal: To check for leadership qualities, even in an Individual Contributor (IC) role.`
+    },
+    {
+      text: 'Tell me about a time you had to influence a product roadmap or strategy.',
+      category: 'Leadership',
+      companies: [],
+      response: ``
+    },
+    {
+      text: 'Describe a situation where you identified a redundancy or technical debt and proposed a solution.',
+      category: 'Behavioural',
+      companies: [],
+      response: `See: "Describe a situation where you had a significant disagreement with a Product Manager or Engineering Lead."\n\nThe Advanced Discounts + Promotional Pricing consolidation at TouchBistro is the core story here — two features doing the same job, identified the IA debt, proposed and eventually won the merger.`
+    },
+    {
+      text: 'Tell me about a time you had a disagreement with leadership regarding product direction.',
+      category: 'Behavioural',
+      companies: [],
+      response: `Two stories to draw from:\n\n1. Multi-location (Task-First vs Venue-First) — CPO/CTO wanted to copy Toast; I ran usability testing, came back with data, changed their minds.\n\n2. Advanced Discounts consolidation — Director and VP of Product resisted merging features; I documented the IA risks and long-term gains, they came back weeks later and agreed.`
+    },
+    {
+      text: 'How do you think about Information Architecture and simplifying complex workflows?',
+      category: 'Technical',
+      companies: [],
+      response: ``
+    },
+    {
+      text: 'How do you handle a situation where a stakeholder gives you subjective feedback that you believe will hurt the user experience?',
+      category: 'Situational',
+      companies: [],
+      response: `Feedback is collaboration. I try to receive it that way, because the person giving it is usually trying to make the product better too.\n\nFirst I listen. If it's something I hadn't thought about, I'll take it away and explore it for real. If I come back and find it creates problems, I'll show my work: I tried what you suggested, here's where it broke down, and here's what I found while I was in there that I think actually solves what you were after. The goal is to make them feel like they're part of where the solution landed.\n\nIf I'm in the meeting and I already know it won't work, I won't wait. I'll sketch it out with them right there. Walking through the specific problems live usually goes better than coming back with a polished case against their idea.\n\n---\nGoal: To see how you defend your work professionally and use logic over ego.`
+    },
+    {
+      text: 'Walk us through a time when a project failed or didn\'t meet expectations. What did you learn, and what would you do differently?',
+      category: 'Behavioural',
+      companies: [],
+      response: `Goal: To measure your humility and ability to iterate on your own processes.`
+    },
+    {
+      text: 'How do you prioritize your work when you are supporting multiple product squads or high-pressure deadlines?',
+      category: 'Situational',
+      companies: [],
+      response: `Goal: To assess your time management and ability to say "no" or "not now" effectively.`
+    },
+    {
+      text: 'Tell me about a time you had to design for a highly technical or complex constraint. How did you simplify it for the user?',
+      category: 'Technical',
+      companies: [],
+      response: `Goal: To see your ability to translate complexity into intuitive interfaces.`
+    },
+    {
+      text: 'We deal with very high-stakes, complex environments. Can you walk me through a project where you had to simplify a highly technical or \'messy\' workflow?',
+      category: 'Technical',
+      companies: [],
+      response: ``
+    },
+    {
+      text: 'How do you balance the strict requirements of security with the need for a seamless, \'delightful\' user experience?',
+      category: 'Situational',
+      companies: [],
+      response: ``
+    },
+    {
+      text: 'Tell me about a time you had to design for multiple personas (e.g., an admin vs. an end-user) within the same product ecosystem.',
+      category: 'Behavioural',
+      companies: [],
+      response: ``
+    },
+    {
+      text: 'How are you currently incorporating AI into your design process? Can you give an example of a \'sophisticated prompt\' or a way you\'ve used AI to solve a design problem?',
+      category: 'Technical',
+      companies: [],
+      response: ``
+    },
+    {
+      text: 'How do you evaluate AI-generated outputs to ensure they meet a high bar for design quality and system adherence?',
+      category: 'Technical',
+      companies: [],
+      response: ``
+    },
+    {
+      text: 'Okta\'s design team has a high degree of autonomy. Tell me about a time you operated in an ambiguous environment and had to define the problem space yourself.',
+      category: 'Behavioural',
+      companies: [],
+      response: ``
+    },
+    {
+      text: 'How do you handle a situation where a PM or Lead Engineer disagrees with your design direction on a strategic level?',
+      category: 'Situational',
+      companies: [],
+      response: ``
+    },
+    {
+      text: 'What does \'leading through influence\' mean to you in the context of a centralized design team?',
+      category: 'Leadership',
+      companies: [],
+      response: ``
+    },
+    { text: 'This role requires designing end-to-end flows that span multiple distinct personas, such as IT Admins, Security Admins, and End-users. Can you walk me through a past project where you had to balance the conflicting needs of different user personas within a single, complex ecosystem?', category: 'Behavioural', companies: ['Okta'], response: `What they want to hear: How you use systems thinking to ensure a change for an IT Admin doesn't break or overcomplicate the experience for an end-user. They want to see how you map complex user journeys.` },
+    { text: 'We are an AI-first design team. How do you currently incorporate AI into your personal design process for brainstorming, prototyping, or prompt documentation? Can you share an example of how it made you more efficient?', category: 'Technical', companies: ['Okta'], response: `What they want to hear: Concrete examples, not just theoretical interest. They explicitly mention "documenting sophisticated prompts for scaled use," so highlight how you treat AI as a collaborative teammate rather than just a basic shortcut.` },
+    { text: 'When using AI-generated design assets or ideas, how do you evaluate them for quality? How do you ensure they adhere to an established design system and maintain technical accuracy before moving toward production?', category: 'Technical', companies: ['Okta'], response: `What they want to hear: Your eye for quality control. AI can hallucinate or ignore design tokens; they want a senior designer who acts as the ultimate gatekeeper for UX principles and brand consistency.` },
+    { text: 'As a centralized design team, we lead through influence rather than authority. Tell me about a time you had to align a Product Manager and an Engineering lead around a UX vision when there was initial pushback or competing business priorities.', category: 'Leadership', companies: ['Okta'], response: `What they want to hear: Your storytelling and negotiation skills. How do you speak the language of PMs (metrics/business goals) and Engineers (feasibility) to get them bought into your design strategy?` },
+    { text: 'The job description highlights the ability to move smoothly between big-picture strategic thinking and detail-oriented pattern design. How do you balance setting a long-term product vision while simultaneously ensuring day-to-day execution meets a high bar of quality?', category: 'Situational', companies: ['Okta'], response: `What they want to hear: Your time management and mental frameworks. How do you avoid getting so bogged down in the pixel-perfect details that you lose sight of the broader product strategy?` },
+    { text: 'Tell me about a time you were dropped into a highly ambiguous project with little documentation or direction. How did you figure out when to take the lead and when to lean on your cross-functional team members to find a path forward?', category: 'Behavioural', companies: ['Okta'], response: `What they want to hear: Senior-level autonomy. They want to know that you don't need hand-holding, but that you are also secure enough to collaborate and delegate rather than trying to solve everything in a silo.` },
+    { text: 'Looking at your portfolio, you\'ve tackled highly technical projects. Can you take one of your favorite case studies and talk about how you balanced generative research during discovery with evaluative testing later in the cycle?', category: 'Technical', companies: ['Okta'], response: `What they want to hear: Proof that you are a holistic designer. They want to see your methodology from the messy beginning of understanding a problem to the clean execution of interaction design and information architecture.` },
+    { text: 'At Okta, our experiences keep millions of people safe every day, meaning usability and security are often in tension. How do you approach designing experiences where adding friction (like security verification) is actually necessary, without destroying the user experience?', category: 'Situational', companies: ['Okta'], response: `What they want to hear: Deep empathy for the unique challenges of the identity and security space. You understand that "seamless" doesn't always mean "zero clicks" when safety is on the line.` },
+    { text: 'What is your approach to creating scalable, usable design patterns? Can you give an example of a pattern you designed that had a lasting impact on product consistency or team efficiency?', category: 'Technical', companies: ['Okta'], response: `What they want to hear: Your contribution to design systems. They want to see that you don't just solve a problem once for one screen, but that you think about how that component or flow scales across an entire enterprise portfolio.` },
+    { text: 'Why Okta, and why now? Given our focus on autonomous, collaborative, and AI-forward design, how does this role align with where you want to take your career as a Senior Designer?', category: 'Culture Fit', companies: ['Okta'], response: `What they want to hear: Genuine alignment with their "AI-first" and highly collaborative environment. They want to know you are genuinely excited about identity security, rather than just looking for any senior design role.` },
+  ].map(q => ({ ...q, id: uid(), dateAdded: today }));
+  set('ip_questions', seed);
+}
+
+/* ── Patch: add Okta questions to existing banks ── */
+function patchOktaQuestions() {
+  const questions = get('ip_questions');
+  const exists = questions.some(q => q.text.includes('high-stakes, complex environments'));
+  if (exists) return;
+  const today = new Date().toISOString().split('T')[0];
+  const additions = [
+    { text: 'We deal with very high-stakes, complex environments. Can you walk me through a project where you had to simplify a highly technical or \'messy\' workflow?',   category: 'Technical',    companies: [], response: `` },
+    { text: 'How do you balance the strict requirements of security with the need for a seamless, \'delightful\' user experience?',                                         category: 'Situational',  companies: [], response: `` },
+    { text: 'Tell me about a time you had to design for multiple personas (e.g., an admin vs. an end-user) within the same product ecosystem.',                            category: 'Behavioural',  companies: [], response: `` },
+    { text: 'How are you currently incorporating AI into your design process? Can you give an example of a \'sophisticated prompt\' or a way you\'ve used AI to solve a design problem?', category: 'Technical', companies: [], response: `` },
+    { text: 'How do you evaluate AI-generated outputs to ensure they meet a high bar for design quality and system adherence?',                                             category: 'Technical',    companies: [], response: `` },
+    { text: 'Okta\'s design team has a high degree of autonomy. Tell me about a time you operated in an ambiguous environment and had to define the problem space yourself.', category: 'Behavioural', companies: [], response: `` },
+    { text: 'How do you handle a situation where a PM or Lead Engineer disagrees with your design direction on a strategic level?',                                         category: 'Situational',  companies: [], response: `` },
+    { text: 'What does \'leading through influence\' mean to you in the context of a centralized design team?',                                                             category: 'Leadership',   companies: [], response: `` },
+  ].map(q => ({ ...q, id: uid(), dateAdded: today }));
+  set('ip_questions', [...questions, ...additions]);
+}
+
+/* ── Patch: add detailed Okta interview questions (v2) ── */
+function patchOktaQuestionsV2() {
+  const questions = get('ip_questions');
+  const exists = questions.some(q => q.text.includes('multiple distinct personas, such as IT Admins'));
+  if (exists) return;
+  const today = new Date().toISOString().split('T')[0];
+  const additions = [
+    {
+      text: 'This role requires designing end-to-end flows that span multiple distinct personas, such as IT Admins, Security Admins, and End-users. Can you walk me through a past project where you had to balance the conflicting needs of different user personas within a single, complex ecosystem?',
+      category: 'Behavioural',
+      companies: ['Okta'],
+      response: `Goal: How you use systems thinking to ensure a change for an IT Admin doesn't break or overcomplicate the experience for an end-user. They want to see how you map complex user journeys.`,
+    },
+    {
+      text: 'We are an AI-first design team. How do you currently incorporate AI into your personal design process for brainstorming, prototyping, or prompt documentation? Can you share an example of how it made you more efficient?',
+      category: 'Technical',
+      companies: ['Okta'],
+      response: `Goal: Concrete examples, not just theoretical interest. They explicitly mention "documenting sophisticated prompts for scaled use," so highlight how you treat AI as a collaborative teammate rather than just a basic shortcut.`,
+    },
+    {
+      text: 'When using AI-generated design assets or ideas, how do you evaluate them for quality? How do you ensure they adhere to an established design system and maintain technical accuracy before moving toward production?',
+      category: 'Technical',
+      companies: ['Okta'],
+      response: `Goal: Your eye for quality control. AI can hallucinate or ignore design tokens; they want a senior designer who acts as the ultimate gatekeeper for UX principles and brand consistency.`,
+    },
+    {
+      text: 'As a centralized design team, we lead through influence rather than authority. Tell me about a time you had to align a Product Manager and an Engineering lead around a UX vision when there was initial pushback or competing business priorities.',
+      category: 'Leadership',
+      companies: ['Okta'],
+      response: `Goal: Your storytelling and negotiation skills. How do you speak the language of PMs (metrics/business goals) and Engineers (feasibility) to get them bought into your design strategy?`,
+    },
+    {
+      text: 'The job description highlights the ability to move smoothly between big-picture strategic thinking and detail-oriented pattern design. How do you balance setting a long-term product vision while simultaneously ensuring day-to-day execution meets a high bar of quality?',
+      category: 'Situational',
+      companies: ['Okta'],
+      response: `Goal: Your time management and mental frameworks. How do you avoid getting so bogged down in the pixel-perfect details that you lose sight of the broader product strategy?`,
+    },
+    {
+      text: 'Tell me about a time you were dropped into a highly ambiguous project with little documentation or direction. How did you figure out when to take the lead and when to lean on your cross-functional team members to find a path forward?',
+      category: 'Behavioural',
+      companies: ['Okta'],
+      response: `Goal: Senior-level autonomy. They want to know that you don't need hand-holding, but that you are also secure enough to collaborate and delegate rather than trying to solve everything in a silo.`,
+    },
+    {
+      text: 'Looking at your portfolio, you\'ve tackled highly technical projects. Can you take one of your favorite case studies and talk about how you balanced generative research during discovery with evaluative testing later in the cycle?',
+      category: 'Technical',
+      companies: ['Okta'],
+      response: `Goal: Proof that you are a holistic designer. They want to see your methodology from the messy beginning of understanding a problem to the clean execution of interaction design and information architecture.`,
+    },
+    {
+      text: 'At Okta, our experiences keep millions of people safe every day, meaning usability and security are often in tension. How do you approach designing experiences where adding friction (like security verification) is actually necessary, without destroying the user experience?',
+      category: 'Situational',
+      companies: ['Okta'],
+      response: `Goal: Deep empathy for the unique challenges of the identity and security space. You understand that "seamless" doesn't always mean "zero clicks" when safety is on the line.`,
+    },
+    {
+      text: 'What is your approach to creating scalable, usable design patterns? Can you give an example of a pattern you designed that had a lasting impact on product consistency or team efficiency?',
+      category: 'Technical',
+      companies: ['Okta'],
+      response: `Goal: Your contribution to design systems. They want to see that you don't just solve a problem once for one screen, but that you think about how that component or flow scales across an entire enterprise portfolio.`,
+    },
+    {
+      text: 'Why Okta, and why now? Given our focus on autonomous, collaborative, and AI-forward design, how does this role align with where you want to take your career as a Senior Designer?',
+      category: 'Culture Fit',
+      companies: ['Okta'],
+      response: `Goal: Genuine alignment with their "AI-first" and highly collaborative environment. They want to know you are genuinely excited about identity security, rather than just looking for any senior design role.`,
+    },
+  ].map(q => ({ ...q, id: uid(), dateAdded: today }));
+  set('ip_questions', [...questions, ...additions]);
+}
+
+/* ── Patch: migrate Goal: from response field into dedicated goal field ── */
+function patchSplitGoalField() {
+  const questions = get('ip_questions');
+  let changed = false;
+  questions.forEach(q => {
+    if (q.goal !== undefined) return;
+    const goal = extractGoal(q.response);
+    q.goal     = goal || '';
+    q.response = goal ? stripGoal(q.response) : (q.response || '');
+    changed    = true;
+  });
+  if (changed) set('ip_questions', questions);
+}
+
+/* ── Patch: reformat "What they want to hear:" responses to "Goal:" ── */
+function patchOktaResponseFormat() {
+  const questions = get('ip_questions');
+  let changed = false;
+  questions.forEach(q => {
+    if ((q.response || '').startsWith('What they want to hear: ')) {
+      q.response = q.response.replace('What they want to hear: ', 'Goal: ');
+      changed = true;
+    }
+  });
+  if (changed) set('ip_questions', questions);
+}
+
+/* ── Patch: restore Okta tags stripped by the old patchStripOktaTags pass ── */
+function patchRestoreOktaTags() {
+  const oktaSnippets = [
+    'multiple distinct personas, such as IT Admins',
+    'AI-first design team. How do you currently incorporate AI',
+    'AI-generated design assets or ideas, how do you evaluate them for quality',
+    'lead through influence rather than authority. Tell me about a time you had to align',
+    'big-picture strategic thinking and detail-oriented pattern design',
+    'dropped into a highly ambiguous project with little documentation',
+    'favorite case studies and talk about how you balanced generative research',
+    'keep millions of people safe every day',
+    'scalable, usable design patterns',
+    'Why Okta, and why now',
+  ];
+  const questions = get('ip_questions');
+  let changed = false;
+  questions.forEach(q => {
+    const isOktaQ = oktaSnippets.some(s => q.text.includes(s));
+    if (isOktaQ && !(q.companies || []).includes('Okta')) {
+      q.companies = [...(q.companies || []), 'Okta'];
+      changed = true;
+    }
+  });
+  if (changed) set('ip_questions', questions);
+}
+
+/* ── Patch: convert plain-text responses to HTML (runs once per question) ── */
+function patchResponseToHtml() {
+  const questions = get('ip_questions');
+  let changed = false;
+  questions.forEach(q => {
+    if (!q.response || /<[a-z]/i.test(q.response)) return;
+    q.response = q.response
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/\n/g, '<br>');
+    changed = true;
+  });
+  if (changed) set('ip_questions', questions);
+}
+
+/* ── File System sync ── */
+let _fh = null;
+
+const _idb = (() => {
+  let _db;
+  const open = () => new Promise((res, rej) => {
+    if (_db) return res(_db);
+    const req = indexedDB.open('ip_sync', 1);
+    req.onupgradeneeded = e => e.target.result.createObjectStore('handles');
+    req.onsuccess = e => { _db = e.target.result; res(_db); };
+    req.onerror = () => rej(req.error);
+  });
+  return {
+    get: async k => { const d = await open(); return new Promise((res, rej) => { const t = d.transaction('handles','readonly'); const r = t.objectStore('handles').get(k); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); }); },
+    put: async (k, v) => { const d = await open(); return new Promise((res, rej) => { const t = d.transaction('handles','readwrite'); const r = t.objectStore('handles').put(v, k); r.onsuccess = () => res(); r.onerror = () => rej(r.error); }); },
+  };
+})();
+
+async function autoSave() {
+  if (!_fh) return;
+  try {
+    const data = {
+      ip_companies: JSON.parse(localStorage.getItem('ip_companies') || '[]'),
+      ip_questions: JSON.parse(localStorage.getItem('ip_questions') || '[]'),
+      savedAt: new Date().toISOString(),
+    };
+    const w = await _fh.createWritable();
+    await w.write(JSON.stringify(data, null, 2));
+    await w.close();
+  } catch {
+    _fh = null;
+    setSyncLabel('Link file');
+  }
+}
+
+function setSyncLabel(text) {
+  const el = document.getElementById('btn-link-file');
+  if (el) el.querySelector('span').textContent = text;
+}
+
+async function linkFile() {
+  if (!window.showSaveFilePicker) {
+    alert('Auto-save requires Chrome or Edge. Use "Export backup" to save manually.');
+    return;
+  }
+  try {
+    const fh = await window.showSaveFilePicker({
+      suggestedName: 'interview-prep.json',
+      types: [{ description: 'JSON', accept: { 'application/json': ['.json'] } }],
+    });
+    _fh = fh;
+    await _idb.put('fh', fh);
+    setSyncLabel('✓ Linked');
+    await autoSave();
+    toast('File linked — changes will auto-save.');
+  } catch {}
+}
+
+async function initFileSync() {
+  if (!window.showSaveFilePicker) return;
+  try {
+    const fh = await _idb.get('fh');
+    if (!fh) return;
+    const perm = await fh.queryPermission({ mode: 'readwrite' });
+    if (perm === 'granted') {
+      _fh = fh; setSyncLabel('✓ Linked');
+    } else if (perm === 'prompt') {
+      const granted = await fh.requestPermission({ mode: 'readwrite' });
+      if (granted === 'granted') { _fh = fh; setSyncLabel('✓ Linked'); }
+    }
+  } catch {}
+}
+
+function exportData() {
+  const data = {
+    ip_companies: JSON.parse(localStorage.getItem('ip_companies') || '[]'),
+    ip_questions: JSON.parse(localStorage.getItem('ip_questions') || '[]'),
+    exportedAt: new Date().toISOString().split('T')[0],
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `interview-prep-${data.exportedAt}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function importData(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (!data.ip_companies && !data.ip_questions) throw new Error('Unrecognised file.');
+      if (data.ip_companies) localStorage.setItem('ip_companies', JSON.stringify(data.ip_companies));
+      if (data.ip_questions) localStorage.setItem('ip_questions', JSON.stringify(data.ip_questions));
+      location.reload();
+    } catch {
+      alert('Could not import: invalid or unrecognised file.');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+/* ── Init ── */
+document.getElementById('sidebar-date').textContent =
+  new Date().toLocaleDateString('en-CA', { weekday:'short', month:'short', day:'numeric', year:'numeric' });
+
+seedQuestionsIfEmpty();
+patchOktaQuestions();
+patchOktaQuestionsV2();
+patchRestoreOktaTags();
+patchOktaResponseFormat();
+patchSplitGoalField();
+patchResponseToHtml();
+syncCompanyFilter();
+renderList();
+initFileSync();
+
+function openNav()  { document.getElementById('sidebar').classList.add('open'); document.getElementById('nav-overlay').classList.add('open'); }
+function closeNav() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('nav-overlay').classList.remove('open'); }
+</script>
+</body>
+</html>
