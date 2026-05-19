@@ -32,6 +32,10 @@
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
       Companies
     </a>
+    <a href="styleguide.html">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+      Design System
+    </a>
   </nav>
   <div class="sidebar-footer">
     <button class="sidebar-action" id="btn-link-file" onclick="linkFile()">
@@ -148,23 +152,43 @@
     <div class="modal-body" style="flex:1;display:flex;flex-direction:column;overflow:hidden;padding-bottom:0">
       <div class="rte-wrap">
         <div class="rte-toolbar">
-          <button type="button" class="rte-btn" onmousedown="event.preventDefault()" onclick="fmt('bold')" title="Bold"><strong>B</strong></button>
-          <button type="button" class="rte-btn" onmousedown="event.preventDefault()" onclick="fmt('italic')" title="Italic" style="font-style:italic">I</button>
-          <button type="button" class="rte-btn" onmousedown="event.preventDefault()" onclick="fmt('underline')" title="Underline" style="text-decoration:underline">U</button>
+          <!-- Font size stepper -->
+          <div class="rte-size-group">
+            <button type="button" class="rte-size-step" onmousedown="rteSizeDec(event)" title="Decrease font size">−</button>
+            <span class="rte-size-display" id="rte-size-display">14</span>
+            <button type="button" class="rte-size-step" onmousedown="rteSizeInc(event)" title="Increase font size">+</button>
+          </div>
           <span class="rte-sep"></span>
-          <select class="rte-size" onchange="fmtSize(this)" title="Font size">
-            <option value="" disabled selected>Size</option>
-            <option value="2">Small</option>
-            <option value="3">Normal</option>
-            <option value="4">Large</option>
-            <option value="6">Heading</option>
-          </select>
+          <!-- Inline formatting -->
+          <button type="button" class="rte-btn" id="rte-bold"      onmousedown="rteExec(event,'bold')"          title="Bold"><b>B</b></button>
+          <button type="button" class="rte-btn" id="rte-italic"    onmousedown="rteExec(event,'italic')"        title="Italic"><i>I</i></button>
+          <button type="button" class="rte-btn" id="rte-underline" onmousedown="rteExec(event,'underline')"     title="Underline"><u>U</u></button>
+          <button type="button" class="rte-btn" id="rte-strike"    onmousedown="rteExec(event,'strikeThrough')" title="Strikethrough"><s>S</s></button>
           <span class="rte-sep"></span>
-          <label class="rte-btn" title="Text colour" onmousedown="saveRteRange()">
-            <span class="rte-color-swatch" id="rte-color-swatch"></span>
-            A
-            <input type="color" class="rte-color-input" id="rte-color-input" value="#18181B" oninput="fmtColor(this.value)">
+          <!-- Colour controls -->
+          <label class="rte-btn rte-color-btn" title="Text colour" onmousedown="saveRteRange()">
+            <span style="font-weight:700;font-size:13px;line-height:1;color:var(--text-primary)">A</span>
+            <span class="rte-color-bar" id="rte-fg-bar"></span>
+            <input type="color" class="rte-color-input" id="rte-fg-input" value="#18181B" oninput="rteFgColor(this.value)">
           </label>
+          <label class="rte-btn rte-color-btn" title="Highlight colour" onmousedown="saveRteRange()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            <span class="rte-color-bar" id="rte-hl-bar" style="background:#FFF176"></span>
+            <input type="color" class="rte-color-input" id="rte-hl-input" value="#FFF176" oninput="rteHlColor(this.value)">
+          </label>
+          <span class="rte-sep"></span>
+          <!-- Link -->
+          <button type="button" class="rte-btn" onmousedown="rteLink(event)" title="Insert link"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></button>
+          <span class="rte-sep"></span>
+          <!-- Alignment -->
+          <button type="button" class="rte-btn" id="rte-align-left"    onmousedown="rteExec(event,'justifyLeft')"   title="Align left"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="6" x2="3" y2="6"/><line x1="15" y1="12" x2="3" y2="12"/><line x1="17" y1="18" x2="3" y2="18"/></svg></button>
+          <button type="button" class="rte-btn" id="rte-align-center"  onmousedown="rteExec(event,'justifyCenter')" title="Align center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="6" x2="3" y2="6"/><line x1="18" y1="12" x2="6" y2="12"/><line x1="21" y1="18" x2="3" y2="18"/></svg></button>
+          <button type="button" class="rte-btn" id="rte-align-right"   onmousedown="rteExec(event,'justifyRight')"  title="Align right"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="12" x2="9" y2="12"/><line x1="21" y1="18" x2="7" y2="18"/></svg></button>
+          <button type="button" class="rte-btn" id="rte-align-justify" onmousedown="rteExec(event,'justifyFull')"   title="Justify"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="12" x2="3" y2="12"/><line x1="21" y1="18" x2="3" y2="18"/></svg></button>
+          <span class="rte-sep"></span>
+          <!-- Lists -->
+          <button type="button" class="rte-btn" id="rte-ul" onmousedown="rteExec(event,'insertUnorderedList')" title="Bullet list"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><circle cx="4" cy="6" r="1.5" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1.5" fill="currentColor" stroke="none"/></svg></button>
+          <button type="button" class="rte-btn" id="rte-ol" onmousedown="rteExec(event,'insertOrderedList')"   title="Numbered list"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></button>
         </div>
         <div class="rte-body" id="notes-modal-body" contenteditable="true"
              data-placeholder="Write your interview notes here…"
@@ -690,7 +714,11 @@ let _activeTabId = null;
 let _rteRange = null;
 let _notesAutoSaveTimer = null;
 
-/* RTE helpers */
+/* ── RTE helpers ── */
+const _rteSizes  = [10, 12, 14, 16, 18, 24, 36];
+const _rteLevels = [ 1,  2,  3,  4,  5,  6,  7];
+let _rteSizeIdx = 2; // default 14
+
 function saveRteRange() {
   const sel = window.getSelection();
   _rteRange = sel.rangeCount > 0 ? sel.getRangeAt(0).cloneRange() : null;
@@ -705,18 +733,61 @@ function restoreRteRange() {
   sel.addRange(_rteRange);
 }
 
-function fmt(cmd) { restoreRteRange(); document.execCommand(cmd, false, null); }
-
-function fmtSize(sel) {
+function rteExec(e, cmd) {
+  e.preventDefault();
   restoreRteRange();
-  document.execCommand('fontSize', false, sel.value);
-  sel.value = '';
+  document.execCommand(cmd, false, null);
+  updateRteState();
 }
 
-function fmtColor(color) {
+function rteSizeInc(e) {
+  e.preventDefault();
+  if (_rteSizeIdx < _rteSizes.length - 1) { _rteSizeIdx++; _applyRteSize(); }
+}
+
+function rteSizeDec(e) {
+  e.preventDefault();
+  if (_rteSizeIdx > 0) { _rteSizeIdx--; _applyRteSize(); }
+}
+
+function _applyRteSize() {
+  restoreRteRange();
+  document.execCommand('fontSize', false, _rteLevels[_rteSizeIdx]);
+  document.getElementById('rte-size-display').textContent = _rteSizes[_rteSizeIdx];
+}
+
+function rteFgColor(color) {
   restoreRteRange();
   document.execCommand('foreColor', false, color);
-  document.getElementById('rte-color-swatch').style.background = color;
+  document.getElementById('rte-fg-bar').style.background = color;
+}
+
+function rteHlColor(color) {
+  restoreRteRange();
+  document.execCommand('backColor', false, color);
+  document.getElementById('rte-hl-bar').style.background = color;
+}
+
+function rteLink(e) {
+  e.preventDefault();
+  restoreRteRange();
+  const url = prompt('Enter URL:');
+  if (url) document.execCommand('createLink', false, url);
+}
+
+function updateRteState() {
+  [['bold','rte-bold'],['italic','rte-italic'],['underline','rte-underline'],['strikeThrough','rte-strike']].forEach(([cmd,id]) => {
+    const btn = document.getElementById(id);
+    if (btn) btn.classList.toggle('active', document.queryCommandState(cmd));
+  });
+  [['justifyLeft','rte-align-left'],['justifyCenter','rte-align-center'],['justifyRight','rte-align-right'],['justifyFull','rte-align-justify']].forEach(([cmd,id]) => {
+    const btn = document.getElementById(id);
+    if (btn) btn.classList.toggle('active', document.queryCommandState(cmd));
+  });
+  [['insertUnorderedList','rte-ul'],['insertOrderedList','rte-ol']].forEach(([cmd,id]) => {
+    const btn = document.getElementById(id);
+    if (btn) btn.classList.toggle('active', document.queryCommandState(cmd));
+  });
 }
 
 /* Tab helpers */
@@ -861,6 +932,10 @@ function closeNotes() {
 
 document.getElementById('notes-modal').addEventListener('click', e => {
   if (e.target === document.getElementById('notes-modal')) closeNotes();
+});
+
+document.addEventListener('selectionchange', () => {
+  if (document.activeElement === document.getElementById('notes-modal-body')) updateRteState();
 });
 
 /* ── Patches ── */
