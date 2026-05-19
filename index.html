@@ -108,6 +108,8 @@
 <script>
   /* ── helpers ── */
   const get = k => JSON.parse(localStorage.getItem(k) || '[]');
+  const set = (k, v) => { localStorage.setItem(k, JSON.stringify(v)); if (typeof autoSave === 'function') autoSave(); };
+  const uid = () => 'c_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
   const ACTIVE         = ['Applied','Phone Screen','Technical','Onsite'];
   const ACTIVE_STAGES  = new Set(['Phone Screen','Technical','Onsite','Offer']);
   const STAGE_ORDER    = ['Applied','Phone Screen','Technical','Onsite','Offer','Rejected'];
@@ -327,10 +329,61 @@
     e.target.value = '';
   }
 
+  /* ── seed ── */
+  function seedIfEmpty() {
+    if (get('ip_companies').length > 0) return;
+    const seed = [
+      { name:'MaintainX',    role:'Staff Designer',            stage:'Applied',       notes:'' },
+      { name:'Harvey',       role:'Senior Product Designer',   stage:'Applied',       notes:'' },
+      { name:'Venn',         role:'Senior Product Designer',   stage:'Applied',       notes:'' },
+      { name:'eBay',         role:'Product Designer III',      stage:'Applied',       notes:'' },
+      { name:'Tim Hortons',  role:'Product Designer II',       stage:'Applied',       notes:'' },
+      { name:'Priceline',    role:'Senior Product Designer',   stage:'Applied',       notes:'' },
+      { name:'Okta',         role:'Senior Product Designer',   stage:'Phone Screen',  notes:'' },
+      { name:'7shifts',      role:'Senior Product Designer',   stage:'Rejected',      notes:'Rejected at hiring manager phase.' },
+      { name:'Affinity',     role:'Senior Product Designer',   stage:'Applied',       notes:'' },
+      { name:'Affirm',       role:'Senior Product Designer',   stage:'Applied',       notes:'' },
+      { name:'Proof',        role:'Senior Product Designer',   stage:'Applied',       notes:'' },
+      { name:'Sun Life',     role:'Senior Product Designer',   stage:'Applied',       notes:'' },
+      { name:'Hopper',       role:'Senior Product Designer',   stage:'Applied',       notes:'' },
+      { name:'Super.com',    role:'Senior Product Designer',   stage:'Applied',       notes:'' },
+      { name:'Ashby',        role:'Senior Product Designer',   stage:'Applied',       notes:'' },
+      { name:'Top Hat',      role:'Lead Product Designer',     stage:'Applied',       notes:'' },
+      { name:'EvenUp',       role:'Senior Product Designer',   stage:'Applied',       notes:'' },
+      { name:'OpenTable',    role:'Senior Product Designer',   stage:'Applied',       notes:'' },
+      { name:'Fellow',       role:'Senior Product Designer',   stage:'Applied',       notes:'' },
+      { name:'Float',        role:'Senior Product Designer',   stage:'Rejected',      notes:'Rejected at hiring manager phase.' },
+      { name:'Koho',         role:'Senior Product Designer',   stage:'Applied',       notes:'' },
+      { name:'Relay',        role:'Senior Product Designer',   stage:'Applied',       notes:'' },
+      { name:'Stripe',       role:'Senior Product Designer',   stage:'Applied',       notes:'' },
+      { name:'CaptivateIQ',  role:'Senior Product Designer',   stage:'Applied',       notes:'' },
+      { name:'eBay (Search)',role:'Senior Product Designer',   stage:'Applied',       notes:'' },
+      { name:'RBC',          role:'Senior Product Designer',   stage:'Applied',       notes:'' },
+    ].map(c => ({ ...c, id: uid(), appliedDate: '', dateAdded: new Date().toISOString().split('T')[0] }));
+    set('ip_companies', seed);
+  }
+
+  function seedQuestionsIfEmpty() {
+    if (get('ip_questions').length > 0) return;
+    const today = new Date().toISOString().split('T')[0];
+    const seed = [
+      { text: 'Can you describe a time when you had to make a design decision that went against a business requirement? How did you handle it?', category: 'Behavioural', companies: [], response: '' },
+      { text: 'Tell me about a project where you used data or research to pivot the product direction.', category: 'Behavioural', companies: [], response: '' },
+      { text: 'How do you ensure your design work aligns with the overall company vision and quarterly goals?', category: 'Situational', companies: [], response: '' },
+      { text: 'Describe a situation where you had a significant disagreement with a Product Manager or Engineering Lead. How was it resolved?', category: 'Behavioural', companies: [], response: '' },
+      { text: 'Tell me about a time you mentored a junior designer or influenced a peer. What was the outcome?', category: 'Leadership', companies: [], response: '' },
+      { text: 'How do you think about Information Architecture and simplifying complex workflows?', category: 'Technical', companies: [], response: '' },
+      { text: 'How do you handle a situation where a stakeholder gives you subjective feedback that you believe will hurt the user experience?', category: 'Situational', companies: [], response: '' },
+    ].map(q => ({ ...q, id: uid(), dateAdded: today }));
+    set('ip_questions', seed);
+  }
+
   /* ── init ── */
   document.getElementById('sidebar-date').textContent =
     new Date().toLocaleDateString('en-CA', { weekday:'short', month:'short', day:'numeric', year:'numeric' });
 
+  seedIfEmpty();
+  seedQuestionsIfEmpty();
   render();
   initFileSync();
 
