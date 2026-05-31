@@ -191,12 +191,30 @@
           <button type="button" class="rte-btn" id="rte-ol" onmousedown="rteCmd(event,'insertOrderedList')"   title="Numbered list"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></button>
         </div>
         <div class="rte-body" id="rf-response" contenteditable="true"
+          oninput="_responseDirty=true;"
           data-placeholder="Write your model answer, key bullet points, or a STAR story here…"></div>
       </div>
     </div>
     <div class="modal-footer">
+      <button class="btn btn-danger" id="delete-response-btn" onclick="deleteResponse()" style="margin-right:auto">Delete Response</button>
       <button class="btn btn-secondary" onclick="closeResponseModal()">Cancel</button>
       <button class="btn btn-primary"   onclick="saveResponse()">Save Response</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Shared confirmation dialog ───────────────────────── -->
+<div class="modal-overlay hidden" id="discard-overlay" style="z-index:250">
+  <div class="modal" style="width:450px;max-width:450px;max-height:300px;min-height:0">
+    <div class="modal-header">
+      <h3 id="discard-title">Discard changes?</h3>
+    </div>
+    <div class="modal-body">
+      <p id="discard-body" style="margin:0;color:var(--text-secondary)">You have unsaved changes. Closing will discard them.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="discard-keep-btn"    onclick="discardKeep()">Keep Editing</button>
+      <button class="btn btn-danger"    id="discard-confirm-btn" onclick="discardConfirm()">Discard Changes</button>
     </div>
   </div>
 </div>
@@ -205,6 +223,28 @@
 <div class="toast hidden" id="toast"></div>
 
 <script>
+/* ── Shared confirmation dialog ── */
+let _discardCallback = null;
+function showDiscardDialog(onConfirm, opts = {}) {
+  _discardCallback = onConfirm;
+  document.getElementById('discard-title').textContent       = opts.title        || 'Discard changes?';
+  document.getElementById('discard-body').textContent        = opts.body         || 'You have unsaved changes. Closing will discard them.';
+  document.getElementById('discard-keep-btn').textContent    = opts.keepLabel    || 'Keep Editing';
+  document.getElementById('discard-confirm-btn').textContent = opts.confirmLabel || 'Discard Changes';
+  document.getElementById('discard-confirm-btn').className   = 'btn ' + (opts.confirmClass || 'btn-danger');
+  document.getElementById('discard-overlay').classList.remove('hidden');
+}
+function discardKeep() {
+  document.getElementById('discard-overlay').classList.add('hidden');
+  _discardCallback = null;
+}
+function discardConfirm() {
+  document.getElementById('discard-overlay').classList.add('hidden');
+  const cb = _discardCallback;
+  _discardCallback = null;
+  if (cb) cb();
+}
+
 /* ── Data helpers ── */
 const get = k  => JSON.parse(localStorage.getItem(k) || '[]');
 const set = (k, v) => { localStorage.setItem(k, JSON.stringify(v)); if (typeof autoSave === 'function') autoSave(); };
@@ -368,6 +408,7 @@ function toggleResp(id, btn) {
 /* ── Modal / Tags ── */
 let editId = null;
 let pendingTags = [];
+let _origModalState = null;
 
 function openModal(id = null) {
   editId = id;
@@ -389,13 +430,33 @@ function openModal(id = null) {
   }
 
   renderPills();
+  _origModalState = {
+    text: document.getElementById('f-text').value,
+    cat:  document.getElementById('f-cat').value,
+    goal: document.getElementById('f-goal').value,
+    tags: [...pendingTags],
+  };
   document.getElementById('modal').classList.remove('hidden');
   setTimeout(() => document.getElementById('f-text').focus(), 60);
 }
 
-function closeModal() {
+function _isModalDirty() {
+  if (!_origModalState) return false;
+  return (
+    document.getElementById('f-text').value !== _origModalState.text ||
+    document.getElementById('f-cat').value  !== _origModalState.cat  ||
+    document.getElementById('f-goal').value !== _origModalState.goal ||
+    JSON.stringify(pendingTags) !== JSON.stringify(_origModalState.tags)
+  );
+}
+
+function closeModal(force = false) {
+  if (!force && _isModalDirty()) {
+    showDiscardDialog(() => closeModal(true));
+    return;
+  }
   document.getElementById('modal').classList.add('hidden');
-  editId = null; pendingTags = [];
+  editId = null; pendingTags = []; _origModalState = null;
 }
 
 function focusTagInput() { document.getElementById('tag-input').focus(); }
@@ -505,7 +566,7 @@ function saveQuestion() {
   }
 
   set('ip_questions', questions);
-  closeModal();
+  closeModal(true);
   syncCompanyFilter();
   renderList();
   toast(editId ? 'Question updated.' : 'Question saved.');
@@ -521,20 +582,36 @@ function deleteQ(id) {
 
 /* ── Response modal ── */
 let responseEditId = null;
+let _responseDirty = false;
+let _responseMutObs = null;
 
 function openResponseModal(id) {
   responseEditId = id;
   const q = get('ip_questions').find(x => x.id === id);
   const editor = document.getElementById('rf-response');
+
+  if (_responseMutObs) { _responseMutObs.disconnect(); _responseMutObs = null; }
   editor.innerHTML = (q && q.response) || '';
+  _responseDirty = false;
+
+  _responseMutObs = new MutationObserver(() => { _responseDirty = true; });
+  _responseMutObs.observe(editor, { childList: true, characterData: true, subtree: true });
+
   document.getElementById('response-modal-title').textContent = (q && q.text) || 'Your Response';
+  const hasResponse = !!(q && q.response);
+  document.getElementById('delete-response-btn').classList.toggle('hidden', !hasResponse);
   document.getElementById('response-modal').classList.remove('hidden');
   setTimeout(() => editor.focus(), 60);
 }
 
-function closeResponseModal() {
+function closeResponseModal(force = false) {
+  if (!force && _responseDirty) {
+    showDiscardDialog(() => closeResponseModal(true));
+    return;
+  }
+  if (_responseMutObs) { _responseMutObs.disconnect(); _responseMutObs = null; }
   document.getElementById('response-modal').classList.add('hidden');
-  responseEditId = null;
+  responseEditId = null; _responseDirty = false;
 }
 
 function saveResponse() {
@@ -542,13 +619,36 @@ function saveResponse() {
   const questions = get('ip_questions');
   const idx = questions.findIndex(q => q.id === responseEditId);
   if (idx > -1) {
-    questions[idx].response = document.getElementById('rf-response').innerHTML;
+    const raw = document.getElementById('rf-response').innerHTML;
+    const isEmpty = !raw || raw.replace(/<br\s*\/?>/gi, '').replace(/&nbsp;/g, '').trim() === '';
+    questions[idx].response = isEmpty ? '' : raw;
     set('ip_questions', questions);
   }
-  closeResponseModal();
+  closeResponseModal(true);
   syncCompanyFilter();
   renderList();
   toast('Response saved.');
+}
+
+function deleteResponse() {
+  showDiscardDialog(
+    () => {
+      if (!responseEditId) return;
+      const questions = get('ip_questions');
+      const idx = questions.findIndex(q => q.id === responseEditId);
+      if (idx > -1) { questions[idx].response = ''; set('ip_questions', questions); }
+      closeResponseModal(true);
+      syncCompanyFilter();
+      renderList();
+      toast('Response deleted.');
+    },
+    {
+      title:        'Delete response?',
+      body:         'This will permanently remove your saved response for this question.',
+      keepLabel:    'Cancel',
+      confirmLabel: 'Delete Response',
+    }
+  );
 }
 
 /* ── RTE commands ── */
@@ -632,14 +732,6 @@ document.addEventListener('selectionchange', () => {
   if (document.activeElement === document.getElementById('rf-response')) updateRteState();
 });
 
-/* ── Close modal on backdrop click ── */
-document.getElementById('modal').addEventListener('click', e => {
-  if (e.target === document.getElementById('modal')) closeModal();
-});
-
-document.getElementById('response-modal').addEventListener('click', e => {
-  if (e.target === document.getElementById('response-modal')) closeResponseModal();
-});
 
 /* ── Seed ── */
 function seedQuestionsIfEmpty() {
